@@ -18,7 +18,7 @@ const Login = () => {
     const isCarousel = React.useRef(null);
     const SLIDER_WIDTH = Dimensions.get("window").width;
     const [Artists, setArtists] = useState([]);
-    const [Manager, setManager] = useState([]);
+    const [Managers, setManager] = useState([]);
 
     useEffect(() => {
         handle_get_list_user();
@@ -44,7 +44,7 @@ const Login = () => {
     };
     const CarouselCardItem = ({ item }) => {
         return (
-            <TouchableOpacity onPress={() => onClick(item.id)}>
+            <TouchableOpacity onPress={() => on_click_screen(item.id)}>
                 <View style={styles.carousel} key={item && item.id}>
                     <Image source={{ uri: item && item.avatar }} style={styles.image} />
                     <View style={styles.carousel_fullname}>
@@ -60,8 +60,8 @@ const Login = () => {
             </TouchableOpacity>
         );
     };
-    const onClick = (id) => {
-        router.push(`/login/${id}`);
+    const on_click_screen = (id) => {
+        router.push({ pathname: `modal_login`, params: { id: id } });
     };
     return (
         <View style={styles.container}>
@@ -100,7 +100,7 @@ const Login = () => {
                             layout="default"
                             layoutCardOffset={9}
                             ref={isCarousel}
-                            data={Manager}
+                            data={Managers}
                             renderItem={CarouselCardItem}
                             sliderWidth={150}
                             itemWidth={150}

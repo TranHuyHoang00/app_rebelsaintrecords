@@ -15,10 +15,10 @@ const logo = require("../../assets/images/logo.png");
 const bg = require("../../assets/images/bg.png");
 import { get_user, Login } from "../../services/api";
 import { useRouter } from "expo-router";
-
-const Login_Page = () => {
+import { set_local_account } from '../../auths/local_storage';
+const modal_login = () => {
     const router = useRouter();
-    const [Data_User, setData_User] = useState({});
+    const [User, setUser] = useState({});
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const { id } = useLocalSearchParams();
@@ -30,7 +30,7 @@ const Login_Page = () => {
             const data = await get_user(id);
             if (data && data.data && data.data.success == 1) {
                 const data_raw = data.data.data;
-                setData_User(data_raw);
+                setUser(data_raw);
                 setUsername(data_raw.username);
             }
         } catch (error) {
@@ -55,13 +55,16 @@ const Login_Page = () => {
         }
         return { code: 0 };
     }
-    const handleLogin = async () => {
+    const handle_login = async () => {
         const result = Validation(username, password);
         if (result.code == 0) {
             try {
                 let data = await Login(username, password);
                 if (data && data.data && data.data.success == 1) {
-                    Alert.alert(`OK`);
+                    const result = await set_local_account(process.env.EXPO_PUBLIC_ACCOUNT, data.data.data);
+                    if (result == true) {
+                        router.replace(`calender`);
+                    }
                 } else {
                     Alert.alert(`Usename or password is incorrect`);
                 }
@@ -80,7 +83,7 @@ const Login_Page = () => {
                 </View>
                 <View style={styles.main}>
                     <View style={styles.main_banner}>
-                        <Image source={{ uri: Data_User && Data_User.avatar }} style={styles.image} />
+                        <Image source={{ uri: User && User.avatar }} style={styles.image} />
                     </View>
                     <View style={styles.main_banner}>
                         <Text style={styles.text_banner1}>ENTER YOUR IDENTITY CODE</Text>
@@ -96,12 +99,12 @@ const Login_Page = () => {
                         />
                     </View>
                     <View style={styles.main_banner}>
-                        <Pressable style={styles.button} onPress={handleLogin} >
+                        <Pressable style={styles.button} onPress={handle_login} >
                             <Text style={styles.button_text}>LOGIN</Text>
                         </Pressable>
                     </View>
                     <View style={styles.main_banner}>
-                        <Button title="BACK" color={'white'} onPress={() => router.push('/login')} />
+                        <Button title="BACK" color={'white'} onPress={() => router.back()} />
                     </View>
                 </View>
                 <View style={styles.footer}>
@@ -205,4 +208,4 @@ const styles = StyleSheet.create({
         fontSize: 5,
     },
 });
-export default Login_Page
+export default modal_login

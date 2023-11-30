@@ -1,34 +1,32 @@
-import { StyleSheet, View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
-import Storages from '../auths/Storages';
+import { get_local_account } from '../auths/local_storage';
 const index = () => {
-    const [User, setUser] = useState(null);
+    const [account, setAccount] = useState();
     useEffect(() => {
-        load_data_account();
+        handle_get_account();
     }, []);
-    const load_data_account = async () => {
-        const data = await Storages.getData('account');
-        if (data == null) {
-            setUser(null);
-        } else {
-            setUser(data);
+
+    const handle_get_account = async () => {
+        try {
+            const data = await get_local_account(process.env.EXPO_PUBLIC_ACCOUNT);
+            if (data == null) {
+                setAccount(false);
+            } else {
+                setAccount(true);
+            }
+        } catch (e) {
+            console.log('Error');
         }
     }
     return (
         <>
-            <View>
-                {User == null ?
-                    <Redirect href="/login" />
-                    :
-                    <Redirect href="/home" />
-                }
-            </View>
+            {account == false &&
+                <Redirect href="/login" />}
+            {account == true &&
+                <Redirect href="/calender" />}
+
         </>
     )
 }
 export default index
-
-const styles = StyleSheet.create({
-
-})
