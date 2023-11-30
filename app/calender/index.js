@@ -164,7 +164,7 @@ const calender = () => {
                                     setOpen={setOpen_drop}
                                     setValue={setValue_drop}
                                     onChangeValue={handle_onchange_drop}
-                                    containerStyle={{ width: 150 }}
+                                    containerStyle={{ width: 130 }}
                                     style={styles.DropDownPicker}
                                     dropDownContainerStyle={{
                                         backgroundColor: "white"
@@ -222,14 +222,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     button1: {
-        width: 70,
+        width: 40,
         height: 32,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',
     },
     button2: {
-        width: 70,
+        width: 40,
         height: 32,
         flexDirection: 'row',
         alignItems: 'center',
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     control1: {
-        paddingRight: 10,
+        paddingRight: 5,
     },
     header: {
 

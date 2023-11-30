@@ -1,0 +1,20 @@
+{
+  "cli": {
+    "version": ">= 5.9.1"
+  },
+  "build": {
+    "preview_android": {
+      "channel": "preview_android",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://103.180.137.113/",
+        "EXPO_PUBLIC_ACCOUNT": "account"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

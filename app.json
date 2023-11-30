@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "app_rebelsaintrecords",
+    "name": "Rebelsaintrecords",
     "slug": "app_rebelsaintrecords",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,21 +8,20 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "com.tranhuyhoang23022001.app_rebelsaintrecords"
     },
     "web": {
       "bundler": "metro",
@@ -30,10 +29,32 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
       "expo-router"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "02f4b9db-23fb-41ae-81a4-05731cf9afdd"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/02f4b9db-23fb-41ae-81a4-05731cf9afdd"
     }
   }
 }

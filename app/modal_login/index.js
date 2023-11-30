@@ -34,7 +34,7 @@ const modal_login = () => {
                 setUsername(data_raw.username);
             }
         } catch (error) {
-            console.error("Error in component:", error);
+            console.error("Error in component1:", error);
         }
     };
     const isCheckEmpty = (value) => {
@@ -104,7 +104,9 @@ const modal_login = () => {
                         </Pressable>
                     </View>
                     <View style={styles.main_banner}>
-                        <Button title="BACK" color={'white'} onPress={() => router.back()} />
+                        <Pressable onPress={() => router.back()}  >
+                            <Text style={styles.button_text1}>BACK</Text>
+                        </Pressable>
                     </View>
                 </View>
                 <View style={styles.footer}>
@@ -134,7 +136,12 @@ const styles = StyleSheet.create({
     },
     button_text: {
         color: "#49688d",
-        fontSize: 16,
+        fontSize: 18,
+        fontWeight: "600",
+    },
+    button_text1: {
+        color: "white",
+        fontSize: 18,
         fontWeight: "600",
     },
     button: {
@@ -180,7 +187,8 @@ const styles = StyleSheet.create({
         fontSize: 20,
     },
     header: {
-        padding: 10,
+        paddingHorizontal: 10,
+        paddingTop: 40,
         justifyContent: "center",
         alignItems: "center",
     },
@@ -193,7 +201,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     text_footer1: {
-        padding: 5,
+        padding: 10,
         color: "white",
         fontWeight: "500",
     },

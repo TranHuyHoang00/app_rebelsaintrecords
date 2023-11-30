@@ -39,7 +39,7 @@ const Login = () => {
                 setManager(data_manager);
             }
         } catch (error) {
-            console.error("Error in component:", error);
+            console.error("Error in :", error);
         }
     };
     const CarouselCardItem = ({ item }) => {
@@ -195,7 +195,8 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     header: {
-        padding: 10,
+        paddingHorizontal: 10,
+        paddingTop: 40,
         justifyContent: "center",
         alignItems: "center",
     },
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     text_footer1: {
-        padding: 5,
+        padding: 10,
         color: "white",
         fontWeight: "500",
     },

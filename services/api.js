@@ -1,5 +1,6 @@
 import axios from 'axios';
 import api_user from '../auths/api_user';
+
 const get_list_user = () => {
     return axios.get(`${process.env.EXPO_PUBLIC_API_URL}/auth/api/v1/list-user`);
 }

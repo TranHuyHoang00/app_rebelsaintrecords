@@ -1,6 +1,5 @@
 import axios from 'axios';
 import handle_token_local from './handle_token';
-
 const api_user = axios.create({ baseURL: `${process.env.EXPO_PUBLIC_API_URL}` });
 api_user.interceptors.request.use(
     async (config) => {

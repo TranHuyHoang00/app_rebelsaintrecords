@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { get_local_account, set_local_account } from './local_storage';
+import { LogBox } from 'react-native';
 
 const handle_token_local = async (account) => {
     let token_init = null;
@@ -36,17 +37,18 @@ const check_token = async (account, token_init) => {
             return Promise.reject(error);
         }
     );
-    let data_checked = await api.get(`${process.env.REACT_APP_API}auth/api/v1/list-role`);
+    let data_checked = await api.get(`${process.env.EXPO_PUBLIC_API_URL}auth/api/v1/list-role`);
     if (data_checked == true) {
         return token_init;
     } else {
         let data_account_raw = null;
-        data_account_raw = get_local_account(account);
-        let data_token = await axios.post(`${process.env.REACT_APP_API}auth/api/v1/token/refresh`, { refresh: data_account_raw.data.refresh });
+        data_account_raw = await get_local_account(account);
+        let data_token = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}auth/api/v1/token/refresh`, { refresh: data_account_raw.refresh });
         let token_new = data_token.data.data.access;
-        let data_account_new = data_account_raw.data;
+
+        let data_account_new = data_account_raw;
         data_account_new.access = token_new;
-        set_local_account(account, data_account_new);
+        await set_local_account(account, data_account_new);
         return token_new;
     }
 
