@@ -17,6 +17,7 @@ const calender = () => {
     const [Filter_type, setFilter_type] = useState({});
     const [date, setDate] = React.useState(dayjs());
     const [Month_now, setMonth_now] = useState({});
+    const [Year_now, setYear_now] = useState('');
     const data_month = [
         { id: '1', name: 'January' },
         { id: '2', name: 'February' },
@@ -125,6 +126,8 @@ const calender = () => {
     }
     const get_month_now = (value) => {
         const dateObject = new Date(value);
+        const year = dateObject.getFullYear();
+        setYear_now(year);
         const month = dateObject.getMonth() + 1;
         for (const i of data_month) {
             if (i.id == month) {
@@ -179,7 +182,10 @@ const calender = () => {
                             <Pressable style={styles.button1} onPress={onPrev}>
                                 <AntDesign name="left" size={24} color="#d60202" />
                             </Pressable>
-                            <Text style={styles.text_month}>{Month_now && Month_now.name}</Text>
+                            <View>
+                                <Text style={styles.text_month}>{Month_now && Month_now.name}</Text>
+                                <Text style={styles.text_year}>{Year_now}</Text>
+                            </View>
                             <Pressable style={styles.button2} onPress={onNext}>
                                 <AntDesign name="right" size={24} color="#d60202" />
                             </Pressable>
@@ -241,11 +247,18 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         paddingHorizontal: 10
     },
+    text_year: {
+        color: 'white',
+        fontSize: 12,
+        fontWeight: '500',
+        textAlign: 'center'
+    },
     main_control: {
         zIndex: 500,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        paddingVertical: 5,
     },
     control: {
         flexDirection: 'row',
