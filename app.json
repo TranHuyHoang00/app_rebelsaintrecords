@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "iosv1"
@@ -24,7 +22,8 @@
         "foregroundImage": "./assets/images/logo1.png",
         "backgroundColor": "#000000"
       },
-      "package": "com.tranhuyhoang23022001.app_rebelsaintrecords"
+      "package": "com.tranhuyhoang23022001.app_rebelsaintrecords",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -50,7 +49,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "02f4b9db-23fb-41ae-81a4-05731cf9afdd"
+        "projectId": "33296051-ea1a-47ba-9287-40845a3084c8"
       }
     },
     "runtimeVersion": {

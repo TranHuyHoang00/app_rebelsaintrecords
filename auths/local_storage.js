@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const get_local_account = async (name) => {
+const get_local = async (name) => {
   try {
     let raw = await AsyncStorage.getItem(name);
     const value = JSON.parse(raw);
@@ -13,7 +13,7 @@ const get_local_account = async (name) => {
     return null;
   }
 }
-const set_local_account = async (name, data) => {
+const set_local = async (name, data) => {
   try {
     const jsonValue = JSON.stringify(data);
     await AsyncStorage.setItem(name, jsonValue);
@@ -22,7 +22,7 @@ const set_local_account = async (name, data) => {
     return false;
   }
 }
-const remove_local_account = async (name) => {
+const remove_local = async (name) => {
   try {
     await AsyncStorage.removeItem(name);
     return true;
@@ -31,5 +31,5 @@ const remove_local_account = async (name) => {
   }
 }
 export {
-  get_local_account, set_local_account, remove_local_account
+  get_local, set_local, remove_local
 }

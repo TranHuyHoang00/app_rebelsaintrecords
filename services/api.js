@@ -28,7 +28,17 @@ const get_makeup_hair = (id) => {
 const get_stylist = (id) => {
     return api_user.get(`/management/api/v1/get-stylist/${id}`,);
 }
+const create_device = (data) => {
+    return api_user.post(`/management/api/v1/create-device`, data,);
+}
+const delete_device = (id) => {
+    return api_user.delete(`/management/api/v1/delete-device/${id}`,);
+}
+const get_list_device = () => {
+    return api_user.get(`/management/api/v1/list-device`);
+}
 export {
     get_list_user, get_user, Login, get_list_schedule, get_schedule, get_charge_of,
-    get_time_location, get_makeup_hair, get_stylist
+    get_time_location, get_makeup_hair, get_stylist, create_device, delete_device,
+    get_list_device
 }

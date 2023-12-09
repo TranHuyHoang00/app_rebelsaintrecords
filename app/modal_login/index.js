@@ -15,7 +15,9 @@ const logo = require("../../assets/images/logo.png");
 const bg = require("../../assets/images/bg.png");
 import { get_user, Login } from "../../services/api";
 import { useRouter } from "expo-router";
-import { set_local_account } from '../../auths/local_storage';
+import { set_local } from '../../auths/local_storage';
+import { handle_get_token_device } from '../../auths/exponent_push_token';
+import { create_device } from '../../services/api';
 const modal_login = () => {
     const router = useRouter();
     const [User, setUser] = useState({});
@@ -55,15 +57,40 @@ const modal_login = () => {
         }
         return { code: 0 };
     }
+    const handle_create_device = async (token_device, user_id) => {
+        try {
+            let data = await create_device({ user_id: user_id, push_token: token_device });
+            if (data && data.data && data.data.success == 1) {
+                const result = await set_local('device_id', data.data.data.id);
+                if (result == true) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+            }
+        } catch (e) {
+            return false;
+        }
+    }
     const handle_login = async () => {
         const result = Validation(username, password);
         if (result.code == 0) {
             try {
                 let data = await Login(username, password);
                 if (data && data.data && data.data.success == 1) {
-                    const result = await set_local_account(process.env.EXPO_PUBLIC_ACCOUNT, data.data.data);
-                    if (result == true) {
-                        router.replace(`calender`);
+                    const result_set_account = await set_local(process.env.EXPO_PUBLIC_ACCOUNT, data.data.data);
+                    if (result_set_account == true) {
+                        let data_raw = data.data.data;
+                        let token_device = await handle_get_token_device();
+                        let result_create_device = await handle_create_device(token_device, data_raw.user.id);
+                        if (result_create_device == true) {
+                            router.replace(`calender`);
+                        } else {
+                            Alert.alert(`Your device has an error`);
+                        }
+                    } else {
+                        Alert.alert(`Something went wrong`);
                     }
                 } else {
                     Alert.alert(`Usename or password is incorrect`);

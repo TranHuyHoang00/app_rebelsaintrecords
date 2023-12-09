@@ -6,7 +6,7 @@ import Footer from '../../components/footer';
 import Header from '../../components/header';
 import { Calendar } from 'react-native-big-calendar';
 import { get_list_schedule, get_list_user } from '../../services/api';
-import { get_local_account } from '../../auths/local_storage';
+import { get_local } from '../../auths/local_storage';
 import dayjs from "dayjs";
 import moment from 'moment';
 import { AntDesign } from '@expo/vector-icons';
@@ -63,7 +63,7 @@ const calender = () => {
     };
     const get_account = async () => {
         try {
-            const data = await get_local_account(process.env.EXPO_PUBLIC_ACCOUNT);
+            const data = await get_local(process.env.EXPO_PUBLIC_ACCOUNT);
             if (data !== null) {
                 if (data.user && data.user.id) {
                     let obj = {};
