@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
         padding: 5,
         color: "white",
         fontWeight: "700",
-        fontSize: 14,
+        fontSize: 12,
     },
     main_banner2: {
         padding: 10,
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
         padding: 10,
         color: "#ffde59",
         fontWeight: "700",
-        fontSize: 20,
+        fontSize: 18,
     },
     main_carousel: {
         alignItems: "center",

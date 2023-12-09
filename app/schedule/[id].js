@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable, ImageBackground, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Pressable, ImageBackground, Image, TouchableOpacity, Linking } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Footer from '../../components/footer';
@@ -39,6 +39,21 @@ const detail = () => {
     const on_click_screen = (id, name) => {
         router.push({ pathname: `${name}`, params: { id } });
     };
+    const handlePhonePress = (phone) => {
+        const phoneUrl = `tel://${phone}`;
+        if (phone == undefined) {
+            return;
+        } else {
+            Linking.canOpenURL(phoneUrl)
+                .then((supported) => {
+                    if (supported) {
+                        return Linking.openURL(phoneUrl);
+                    }
+                })
+                .catch((error) => console.error('Lỗi:', error));
+        }
+
+    };
     return (
         <View style={styles.container}>
             <ImageBackground source={bg} style={styles.bg}>
@@ -66,33 +81,61 @@ const detail = () => {
                         </View>
                         <View style={styles.container_span}>
                             <TouchableOpacity onPress={() => on_click_screen(Schedule.time_localtion_id && Schedule.time_localtion_id.id, 'time_location')}>
-                                <View style={styles.span} >
-                                    <Entypo name="back-in-time" size={22} color="black" />
-                                    <Text style={styles.text_span}>TIME - LOCATION</Text>
-                                    <AntDesign name="enviromento" size={22} color="black" />
+                                <View style={styles.main_span}>
+                                    <View style={styles.span} >
+                                        <Entypo name="back-in-time" size={22} color="black" />
+                                        <Text style={styles.text_span}>TIME - LOCATION</Text>
+                                        <AntDesign name="enviromento" size={22} color="black" />
+                                    </View>
+                                    <View style={styles.span}>
+                                        <Text style={styles.text_span1}>{format_time(Schedule.time_localtion_id && Schedule.time_localtion_id.show_time)}</Text>
+                                    </View>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => on_click_screen(Schedule.makeup_hair_id && Schedule.makeup_hair_id.id, 'makeup_hair')}>
-                                <View style={styles.span}>
-                                    <FontAwesome name="paint-brush" size={22} color="black" />
-                                    <Text style={styles.text_span}>MAKE UP - HAIR</Text>
-                                    <Fontisto name="person" size={22} color="black" />
+                                <View style={styles.main_span}>
+                                    <View style={styles.span}>
+                                        <FontAwesome name="paint-brush" size={22} color="black" />
+                                        <Text style={styles.text_span}>MAKE UP - HAIR</Text>
+                                        <Fontisto name="person" size={22} color="black" />
+                                    </View>
+                                    <View style={styles.span}>
+                                        <Text style={styles.text_span1}>Make up: {Schedule.makeup_hair_id && Schedule.makeup_hair_id.make_up}</Text>
+                                    </View>
+                                    <View style={styles.span}>
+                                        <Text style={styles.text_span1}>Make hair: {Schedule.makeup_hair_id && Schedule.makeup_hair_id.make_hair}</Text>
+                                    </View>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => on_click_screen(Schedule.stylist_id && Schedule.stylist_id.id, 'stylist')}>
-                                <View style={styles.span}>
-                                    <Ionicons name="md-shirt-sharp" size={22} color="black" />
-                                    <Text style={styles.text_span}>STYLIST </Text>
-                                    <MaterialCommunityIcons name="tshirt-v-outline" size={22} color="black" />
+                                <View style={styles.main_span}>
+                                    <View style={styles.span}>
+                                        <Ionicons name="md-shirt-sharp" size={22} color="black" />
+                                        <Text style={styles.text_span}>STYLIST </Text>
+                                        <MaterialCommunityIcons name="tshirt-v-outline" size={22} color="black" />
+                                    </View>
+                                    <View style={styles.span}>
+                                        <Text style={styles.text_span1}>{Schedule.stylist_id && Schedule.stylist_id.name}</Text>
+                                    </View>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => on_click_screen(Schedule.charge_of_id && Schedule.charge_of_id.id, 'charge_of')}>
-                                <View style={styles.span}>
-                                    <Entypo name="user" size={22} color="black" />
-                                    <Text style={styles.text_span}>PERSON IN CHARGE </Text>
-                                    <FontAwesome name="user-secret" size={22} color="black" />
-                                </View>
-                            </TouchableOpacity>
+                            <View style={styles.main_span}>
+                                <TouchableOpacity onPress={() => on_click_screen(Schedule.charge_of_id && Schedule.charge_of_id.id, 'charge_of')}>
+                                    <View style={styles.span}>
+                                        <Entypo name="user" size={22} color="black" />
+                                        <Text style={styles.text_span}>PERSON IN CHARGE </Text>
+                                        <FontAwesome name="user-secret" size={22} color="black" />
+                                    </View>
+                                    <View style={styles.span}>
+                                        <Text style={styles.text_span1}>{Schedule.charge_of_id && Schedule.charge_of_id.name}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => handlePhonePress(Schedule.time_localtion_id && Schedule.time_localtion_id.contact)}>
+                                    <View style={styles.span}>
+                                        <Text style={styles.text_span1}>{Schedule.time_localtion_id && Schedule.time_localtion_id.contact}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -113,19 +156,27 @@ const styles = StyleSheet.create({
     },
     text_span: {
         textAlign: 'center',
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: '600',
         paddingHorizontal: 10,
     },
-    span: {
+    text_span1: {
+        textAlign: 'center',
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#3d3d3d',
+    },
+    main_span: {
         borderRadius: 10,
-        paddingVertical: 15,
-        paddingHorizontal: 15,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+        backgroundColor: 'white',
+        marginVertical: 5,
+    },
+    span: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white',
-        marginVertical: 5,
     },
     image: {
         height: 90,

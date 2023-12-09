@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView, Linking, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Footer from '../../components/footer';
@@ -38,6 +38,21 @@ const time_location = () => {
         }
         return `${hour}:${minute}`
     }
+    const handlePhonePress = (phone) => {
+        const phoneUrl = `tel://${phone}`;
+        if (phone == undefined) {
+            return;
+        } else {
+            Linking.canOpenURL(phoneUrl)
+                .then((supported) => {
+                    if (supported) {
+                        return Linking.openURL(phoneUrl);
+                    }
+                })
+                .catch((error) => console.error('Lỗi:', error));
+        }
+
+    };
     return (
         <View style={styles.container}>
             <ImageBackground source={bg} style={styles.bg}>
@@ -94,9 +109,11 @@ const time_location = () => {
                             </View>
                             <View style={styles.main_info1}>
                                 <Text style={styles.text_lable}>- Contact :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{Time_location && Time_location.contact}</Text>
-                                </View>
+                                <TouchableOpacity onPress={() => handlePhonePress(Time_location && Time_location.contact)}>
+                                    <View style={styles.info}>
+                                        <Text style={styles.text_info}>{Time_location && Time_location.contact}</Text>
+                                    </View>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </ScrollView>

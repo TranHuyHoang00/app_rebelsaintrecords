@@ -139,6 +139,10 @@ const calender = () => {
         let date = format_date(value, 3);
         router.push({ pathname: `schedule`, params: { user_id: Filter_type.user_id, date: date, type_date: 2 } });
     }
+    const on_click_event = (value) => {
+        let date = format_date(value.start, 3);
+        router.push({ pathname: `schedule`, params: { user_id: Filter_type.user_id, date: date, type_date: 2 } });
+    }
     const onPrev = () => {
         setDate(date.add(-1, 'month'));
         get_month_now(date.add(-1, 'month'));
@@ -198,6 +202,7 @@ const calender = () => {
                         events={Schedules}
                         mode={'month'}
                         onPressCell={(value) => on_click_date(value)}
+                        onPressEvent={(event) => on_click_event(event)}
                         calendarCellTextStyle={{ color: 'white' }}
                         swipeEnabled={false}
                         calendarCellStyle={{
@@ -257,8 +262,9 @@ const styles = StyleSheet.create({
         zIndex: 500,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         paddingVertical: 5,
+        paddingHorizontal: 10,
     },
     control: {
         flexDirection: 'row',

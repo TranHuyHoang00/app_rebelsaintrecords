@@ -3,8 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { remove_local, get_local } from '../auths/local_storage';
 import { useRouter } from "expo-router";
 import { get_list_device, delete_device } from '../services/api';
+import { Entypo, MaterialIcons } from '@expo/vector-icons';
+
 const header = () => {
     const router = useRouter();
+    const [Menu, setMenu] = useState(false);
     useEffect(() => {
     }, []);
 
@@ -37,9 +40,20 @@ const header = () => {
     }
     return (
         <View style={styles.header}>
-            <Pressable onPress={handleLogout}  >
-                <Text style={styles.button_text1}>Logout</Text>
-            </Pressable>
+            {Menu == true &&
+                <Pressable onPress={handleLogout}  >
+                    <Text style={styles.button_text1}>Log out</Text>
+                </Pressable>
+            }
+            {Menu == true ?
+                <Pressable onPress={() => setMenu(false)}  >
+                    <MaterialIcons name="menu-open" size={30} color="white" />
+                </Pressable>
+                :
+                <Pressable onPress={() => setMenu(true)}  >
+                    <Entypo name="menu" size={30} color="white" />
+                </Pressable>
+            }
 
         </View>
     )
@@ -52,6 +66,11 @@ const styles = StyleSheet.create({
         color: "#ffde59",
         fontSize: 18,
         fontWeight: "400",
+        marginRight: 50,
+        borderColor: "#636663",
+        borderWidth: 1,
+        padding: 3,
+        borderRadius: 5,
     },
     header: {
         flexDirection: 'row',
@@ -59,6 +78,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 10,
         paddingTop: 40,
-        paddingBottom: 20,
+        paddingBottom: 10,
     },
 })
