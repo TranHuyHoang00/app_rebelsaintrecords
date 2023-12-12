@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView, TouchableOpacity, Linking } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Footer from '../../components/footer';
 import Header from '../../components/header';
 import { get_charge_of } from '../../services/api';
 import { AntDesign, Entypo, FontAwesome, } from '@expo/vector-icons';
+import { handle_phone_press } from '../../auths/phone_press';
 const bg = require("../../assets/images/bg.png");
 const charge_of = () => {
     const router = useRouter();
@@ -49,6 +50,15 @@ const charge_of = () => {
                                 <View style={styles.info}>
                                     <Text style={styles.text_info}>{Charge_of && Charge_of.name}</Text>
                                 </View>
+                            </View>
+                            <View style={styles.main_info1}>
+                                <Text style={styles.text_lable}>- Contact :</Text>
+                                <TouchableOpacity onPress={() => handle_phone_press(Charge_of && Charge_of.phone)}>
+                                    <View style={styles.info}>
+                                        <Text style={styles.text_info}>{Charge_of && Charge_of.phone}</Text>
+                                    </View>
+                                </TouchableOpacity>
+
                             </View>
                         </View>
                     </ScrollView>

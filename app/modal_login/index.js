@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     logo: {
-        width: 200,
+        width: 300,
         height: 100,
     },
     footer: {

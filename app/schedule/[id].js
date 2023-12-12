@@ -5,6 +5,7 @@ import Footer from '../../components/footer';
 import Header from '../../components/header';
 const bg = require("../../assets/images/bg.png");
 import { get_schedule } from '../../services/api';
+import { handle_phone_press } from '../../auths/phone_press';
 import { AntDesign, Entypo, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 const detail = () => {
     const router = useRouter();
@@ -38,21 +39,6 @@ const detail = () => {
     }
     const on_click_screen = (id, name) => {
         router.push({ pathname: `${name}`, params: { id } });
-    };
-    const handlePhonePress = (phone) => {
-        const phoneUrl = `tel://${phone}`;
-        if (phone == undefined) {
-            return;
-        } else {
-            Linking.canOpenURL(phoneUrl)
-                .then((supported) => {
-                    if (supported) {
-                        return Linking.openURL(phoneUrl);
-                    }
-                })
-                .catch((error) => console.error('Lỗi:', error));
-        }
-
     };
     return (
         <View style={styles.container}>
@@ -130,9 +116,9 @@ const detail = () => {
                                         <Text style={styles.text_span1}>{Schedule.charge_of_id && Schedule.charge_of_id.name}</Text>
                                     </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => handlePhonePress(Schedule.time_localtion_id && Schedule.time_localtion_id.contact)}>
+                                <TouchableOpacity onPress={() => handle_phone_press(Schedule.charge_of_id && Schedule.charge_of_id.phone)}>
                                     <View style={styles.span}>
-                                        <Text style={styles.text_span1}>{Schedule.time_localtion_id && Schedule.time_localtion_id.contact}</Text>
+                                        <Text style={styles.text_span1}>{Schedule.charge_of_id && Schedule.charge_of_id.phone}</Text>
                                     </View>
                                 </TouchableOpacity>
                             </View>

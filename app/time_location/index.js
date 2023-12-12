@@ -5,6 +5,8 @@ import Footer from '../../components/footer';
 import Header from '../../components/header';
 import { get_time_location } from '../../services/api';
 import { AntDesign, Entypo, } from '@expo/vector-icons';
+import { handle_phone_press } from '../../auths/phone_press';
+
 const bg = require("../../assets/images/bg.png");
 const time_location = () => {
     const router = useRouter();
@@ -38,21 +40,6 @@ const time_location = () => {
         }
         return `${hour}:${minute}`
     }
-    const handlePhonePress = (phone) => {
-        const phoneUrl = `tel://${phone}`;
-        if (phone == undefined) {
-            return;
-        } else {
-            Linking.canOpenURL(phoneUrl)
-                .then((supported) => {
-                    if (supported) {
-                        return Linking.openURL(phoneUrl);
-                    }
-                })
-                .catch((error) => console.error('Lỗi:', error));
-        }
-
-    };
     return (
         <View style={styles.container}>
             <ImageBackground source={bg} style={styles.bg}>
@@ -109,7 +96,7 @@ const time_location = () => {
                             </View>
                             <View style={styles.main_info1}>
                                 <Text style={styles.text_lable}>- Contact :</Text>
-                                <TouchableOpacity onPress={() => handlePhonePress(Time_location && Time_location.contact)}>
+                                <TouchableOpacity onPress={() => handle_phone_press(Time_location && Time_location.contact)}>
                                     <View style={styles.info}>
                                         <Text style={styles.text_info}>{Time_location && Time_location.contact}</Text>
                                     </View>
