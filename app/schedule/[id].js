@@ -26,16 +26,12 @@ const detail = () => {
         }
     };
     const format_time = (time) => {
-        var time_raw = new Date(time);
-        var hour = time_raw.getHours();
-        var minute = time_raw.getMinutes();
-        if (hour.toString().length === 1) {
-            hour = '0' + hour;
+        if (time && time !== undefined) {
+            var timeParts = time.split(":");
+            var formattedTime = timeParts[0] + ":" + timeParts[1];
+            return formattedTime
         }
-        if (minute.toString().length === 1) {
-            minute = '0' + minute;
-        }
-        return `${hour}:${minute}`
+
     }
     const on_click_screen = (id, name) => {
         router.push({ pathname: `${name}`, params: { id } });

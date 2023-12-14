@@ -104,7 +104,7 @@ const calender = () => {
     try {
       const data = await get_list_schedule(value);
       if (data && data.data && data.data.success == 1) {
-        let data_raw = data.data.data;
+        let data_raw = filter_schedule(data.data.data);
         let arr: any = [];
         for (const item of data_raw) {
           const date: any = format_date(
@@ -128,6 +128,18 @@ const calender = () => {
     } catch (error) {
       console.error("Error:", error);
     }
+  };
+  const filter_schedule = (data: any) => {
+    const uniqueEvents = new Set();
+    const filteredEvents = data.filter((event: any) => {
+      const key = event.user_id.fullname + event.time_localtion_id.show_date;
+      const isUnique = !uniqueEvents.has(key);
+      if (isUnique) {
+        uniqueEvents.add(key);
+      }
+      return isUnique;
+    });
+    return filteredEvents;
   };
   const format_date = (value: any, type: number) => {
     if (type == 1) {

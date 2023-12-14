@@ -20,8 +20,8 @@ const schedule = () => {
       if (data && data.data && data.data.success == 1) {
         let data_raw = data.data.data;
         data_raw.sort((a, b) => {
-          const dateA = new Date(a.time_localtion_id.show_time);
-          const dateB = new Date(b.time_localtion_id.show_time);
+          const dateA = new Date("2023-01-01 " + a.time_localtion_id.show_time);
+          const dateB = new Date("2023-01-01 " + b.time_localtion_id.show_time);
           return dateA - dateB;
         });
         setSchedules(data_raw)
@@ -31,16 +31,11 @@ const schedule = () => {
     }
   };
   const format_time = (time) => {
-    var time_raw = new Date(time);
-    var hour = time_raw.getHours();
-    var minute = time_raw.getMinutes();
-    if (hour.toString().length === 1) {
-      hour = '0' + hour;
+    if (time && time !== undefined) {
+      var timeParts = time.split(":");
+      var formattedTime = timeParts[0] + ":" + timeParts[1];
+      return formattedTime
     }
-    if (minute.toString().length === 1) {
-      minute = '0' + minute;
-    }
-    return `${hour}:${minute}`
   }
   const on_click_screen = (id) => {
     router.push({ pathname: `schedule/${id}` });

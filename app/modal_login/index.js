@@ -80,17 +80,14 @@ const modal_login = () => {
                 let data = await Login(username, password);
                 if (data && data.data && data.data.success == 1) {
                     const result_set_account = await set_local(process.env.EXPO_PUBLIC_ACCOUNT, data.data.data);
-                    if (result_set_account == true) {
-                        let data_raw = data.data.data;
-                        let token_device = await handle_get_token_device();
-                        let result_create_device = await handle_create_device(token_device, data_raw.user.id);
-                        if (result_create_device == true) {
-                            router.replace(`calender`);
-                        } else {
-                            Alert.alert(`Your device has an error`);
-                        }
+                    if (result_set_account == false) { return }
+                    let data_raw = data.data.data;
+                    let token_device = await handle_get_token_device();
+                    let result_create_device = await handle_create_device(token_device, data_raw.user.id);
+                    if (result_create_device == true) {
+                        router.replace(`calender`);
                     } else {
-                        Alert.alert(`Something went wrong`);
+                        Alert.alert(`Your device has an error`);
                     }
                 } else {
                     Alert.alert(`Usename or password is incorrect`);
