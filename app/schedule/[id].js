@@ -6,7 +6,7 @@ import Header from '../../components/header';
 const bg = require("../../assets/images/bg.png");
 import { get_schedule } from '../../services/api';
 import { handle_phone_press } from '../../auths/phone_press';
-import { AntDesign, Entypo, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign, Entypo, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons, Foundation, FontAwesome5 } from '@expo/vector-icons';
 const detail = () => {
     const router = useRouter();
     const { id } = useLocalSearchParams();
@@ -118,6 +118,15 @@ const detail = () => {
                                     </View>
                                 </TouchableOpacity>
                             </View>
+                            <TouchableOpacity onPress={() => on_click_screen(Schedule.charge_of_id && Schedule.charge_of_id.id, 'note')}>
+                                <View style={styles.main_span}>
+                                    <View style={styles.span}>
+                                        <Foundation name="clipboard-notes" size={24} color="black" />
+                                        <Text style={styles.text_span}>NOTE </Text>
+                                        <FontAwesome5 name="sticky-note" size={22} color="black" />
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
@@ -198,7 +207,9 @@ const styles = StyleSheet.create({
         borderColor: "white",
         borderWidth: 1,
         borderRadius: 10,
-        margin: 20,
+        marginHorizontal: 20,
+        marginBottom: 10,
+        marginTop: 5,
     },
     button_text: {
         color: "#49688d",
@@ -220,7 +231,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 10,
-        paddingVertical: 10,
+        paddingVertical: 5,
     },
     container: {
         height: "100%",

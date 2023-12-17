@@ -30,6 +30,9 @@ const _layout = () => {
             <Stack.Screen name='charge_of' options={{
                 headerShown: false,
             }} />
+            <Stack.Screen name='note' options={{
+                headerShown: false,
+            }} />
         </Stack>
     )
 }
