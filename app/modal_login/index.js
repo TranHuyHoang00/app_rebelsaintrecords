@@ -1,43 +1,38 @@
-import {
-    View,
-    Text,
-    StyleSheet,
-    ImageBackground,
-    Image,
-    TextInput,
-    Pressable,
-    Button,
-    Alert,
-} from "react-native";
+import { View, Text, StyleSheet, ImageBackground, Image, TextInput, Pressable, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-const logo = require("../../assets/images/logo.png");
-const bg = require("../../assets/images/bg.png");
-import { get_user, Login } from "../../services/api";
+const LogoImage = require("../../assets/images/logo.png");
+const Background = require("../../assets/images/bg.png");
+import { getUser, Login } from "../../services/api";
 import { useRouter } from "expo-router";
-import { set_local } from '../../auths/local_storage';
-import { handle_get_token_device } from '../../auths/exponent_push_token';
-import { create_device } from '../../services/api';
+import { setDataLocal } from '../../auths/localStorage';
+import { getTokenDevice } from '../../auths/exponentPushToken';
+import { createDevice } from '../../services/api';
+import Spinner from 'react-native-loading-spinner-overlay';
+
 const modal_login = () => {
     const router = useRouter();
     const [User, setUser] = useState({});
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const { id } = useLocalSearchParams();
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
-        handle_get_user(id);
+        handleGetUser(id);
     }, []);
-    const handle_get_user = async (id) => {
+    const handleGetUser = async (id) => {
+        setLoading(true);
         try {
-            const data = await get_user(id);
+            const data = await getUser(id);
             if (data && data.data && data.data.success == 1) {
-                const data_raw = data.data.data;
-                setUser(data_raw);
-                setUsername(data_raw.username);
+                const dataOriginal = data.data.data;
+                setUser(dataOriginal);
+                setUsername(dataOriginal.username);
             }
         } catch (error) {
-            console.error("Error in component1:", error);
+            Alert.alert("System Error");
         }
+        setLoading(false);
     };
     const isCheckEmpty = (value) => {
         return value.trim().length
@@ -57,64 +52,59 @@ const modal_login = () => {
         }
         return { code: 0 };
     }
-    const handle_create_device = async (token_device, user_id) => {
+    const handleCreateDevice = async (tokenDevice, userId) => {
         try {
-            let data = await create_device({ user_id: user_id, push_token: token_device });
+            const data = await createDevice({ user_id: userId, push_token: tokenDevice });
             if (data && data.data && data.data.success == 1) {
-                const result = await set_local('device_id', data.data.data.id);
-                if (result == true) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
+                const dataOriginal = data.data.data;
+                return dataOriginal;
             }
         } catch (e) {
-            return false;
+            return {};
         }
     }
-    const handle_login = async () => {
+    const handleLogin = async () => {
         const result = Validation(username, password);
         if (result.code == 0) {
+            setLoading(true);
             try {
-                let data = await Login(username, password);
+                const data = await Login(username, password);
                 if (data && data.data && data.data.success == 1) {
-                    const result_set_account = await set_local(process.env.EXPO_PUBLIC_ACCOUNT, data.data.data);
-                    if (result_set_account == false) { return }
-                    let data_raw = data.data.data;
-                    let token_device = await handle_get_token_device();
-                    let result_create_device = await handle_create_device(token_device, data_raw.user.id);
-                    if (result_create_device == true) {
-                        router.replace(`calender`);
-                    } else {
-                        Alert.alert(`Your device has an error`);
-                    }
+                    const dataOriginal = data.data.data;
+                    const resultSaveAccount = await setDataLocal(process.env.EXPO_PUBLIC_ACCOUNT, dataOriginal);
+                    if (resultSaveAccount == false) { return; }
+                    const tokenDevice = await getTokenDevice();
+                    const dataDevice=await handleCreateDevice(tokenDevice, dataOriginal.user.id);
+                    await setDataLocal('device_id', dataDevice.id);
+                    router.replace(`calender`);
                 } else {
                     Alert.alert(`Usename or password is incorrect`);
                 }
             } catch (e) {
-                Alert.alert(`Usename or password is incorrect`);
+                Alert.alert(`Usename or password is incorrect 1`);
             }
+            setLoading(false);
         } else {
             Alert.alert(result.mess);
         }
     }
     return (
-        <View style={styles.container}>
-            <ImageBackground source={bg} style={styles.bg}>
-                <View style={styles.header}>
-                    <Image source={logo} style={styles.logo} />
+        <View style={styles.containerBody}>
+            <Spinner visible={loading} textContent={'Loading...'} />
+            <ImageBackground source={Background} style={styles.containerBackground}>
+                <View style={styles.containerHeadẻ}>
+                    <Image source={LogoImage} style={styles.imageLogo} />
                 </View>
-                <View style={styles.main}>
-                    <View style={styles.main_banner}>
-                        <Image source={{ uri: User && User.avatar }} style={styles.image} />
+                <View style={styles.containerMain}>
+                    <View style={styles.containerBanner}>
+                        <Image source={{ uri: User?.avatar }} style={styles.imageAvatar} />
                     </View>
-                    <View style={styles.main_banner}>
-                        <Text style={styles.text_banner1}>ENTER YOUR IDENTITY CODE</Text>
+                    <View style={styles.containerBanner}>
+                        <Text style={styles.textBannerPassword}>ENTER YOUR IDENTITY CODE</Text>
                     </View>
-                    <View style={styles.main_banner}>
+                    <View style={styles.containerBanner}>
                         <TextInput
-                            style={styles.input}
+                            style={styles.inputPassword}
                             placeholder="*******"
                             secureTextEntry={true}
                             placeholderTextColor="#ffde59"
@@ -122,23 +112,23 @@ const modal_login = () => {
                             onChangeText={setPassword}
                         />
                     </View>
-                    <View style={styles.main_banner}>
-                        <Pressable style={styles.button} onPress={handle_login} >
-                            <Text style={styles.button_text}>LOGIN</Text>
+                    <View style={styles.containerBanner}>
+                        <Pressable style={styles.buttonLogin} onPress={handleLogin} >
+                            <Text style={styles.textLogin}>LOGIN</Text>
                         </Pressable>
                     </View>
-                    <View style={styles.main_banner}>
+                    <View style={styles.containerBanner}>
                         <Pressable onPress={() => router.back()}  >
-                            <Text style={styles.button_text1}>BACK</Text>
+                            <Text style={styles.buttonBack}>BACK</Text>
                         </Pressable>
                     </View>
                 </View>
-                <View style={styles.footer}>
+                <View style={styles.containerFooter}>
                     <View>
-                        <Text style={styles.text_footer1}>wwww.rebelsaintrecords.com</Text>
+                        <Text style={styles.textBannerWeb}>wwww.rebelsaintrecords.com</Text>
                     </View>
-                    <View style={styles.banner_text_footer2}>
-                        <Text style={styles.text_footer2}>
+                    <View style={styles.footerBannerAdress}>
+                        <Text style={styles.textBannerAddress}>
                             2022 © rebelsaintrecords | registered in Vietnam VAT number
                             0317147107 | RebelSaint Entertainment & Media Company Limited |
                             RSR Co., Ltd
@@ -150,7 +140,7 @@ const modal_login = () => {
     )
 }
 const styles = StyleSheet.create({
-    image: {
+    imageAvatar: {
         height: 130,
         width: 130,
         borderRadius: 100,
@@ -158,17 +148,17 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         resizeMode: 'cover',
     },
-    button_text: {
+    textLogin: {
         color: "#49688d",
         fontSize: 18,
         fontWeight: "600",
     },
-    button_text1: {
+    buttonBack: {
         color: "white",
         fontSize: 18,
         fontWeight: "600",
     },
-    button: {
+    buttonLogin: {
         width: "80%",
         alignItems: "center",
         justifyContent: "center",
@@ -177,7 +167,7 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         backgroundColor: "#ffde59",
     },
-    input: {
+    inputPassword: {
         width: "80%",
         borderColor: "white",
         borderBottomWidth: 2,
@@ -186,54 +176,55 @@ const styles = StyleSheet.create({
         color: "#ffde59",
         fontSize: 18,
     },
-    bg: {
+    containerBackground: {
         height: "100%",
         resizeMode: "cover",
         justifyContent: "center",
     },
-    container: {
+    containerBody: {
         height: "100%",
         flexDirection: "column",
+        backgroundColor: "#00030a",
     },
-    main: {
+    containerMain: {
         flex: 1,
     },
-    main_banner: {
+    containerBanner: {
         padding: 10,
         justifyContent: "center",
         alignItems: "center",
     },
-    text_banner1: {
+    textBannerPassword: {
         fontStyle: "italic",
         padding: 10,
         color: "white",
         fontWeight: "700",
         fontSize: 20,
     },
-    header: {
+    containerHeadẻ: {
         paddingHorizontal: 10,
         paddingTop: 40,
         justifyContent: "center",
         alignItems: "center",
     },
-    logo: {
+    imageLogo: {
         width: 300,
         height: 100,
     },
-    footer: {
+    containerFooter: {
         justifyContent: "center",
         alignItems: "center",
     },
-    text_footer1: {
+    textBannerWeb: {
         padding: 10,
         color: "white",
         fontWeight: "500",
     },
-    banner_text_footer2: {
+    footerBannerAdress: {
         width: "100%",
         backgroundColor: "#f8cf2c",
     },
-    text_footer2: {
+    textBannerAddress: {
         padding: 4,
         textAlign: "center",
         color: "black",

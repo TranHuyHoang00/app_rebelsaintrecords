@@ -1,48 +1,27 @@
 import { StyleSheet, View, Pressable, Text } from 'react-native'
 import React, { useState, useEffect } from 'react';
-import { remove_local, get_local } from '../auths/local_storage';
+import { deleteDataLocal, getDataLocal } from '../auths/localStorage';
 import { useRouter } from "expo-router";
-import { get_list_device, delete_device } from '../services/api';
+import { deleteDevice } from '../services/api';
 import { Entypo, MaterialIcons } from '@expo/vector-icons';
 
 const header = () => {
     const router = useRouter();
     const [Menu, setMenu] = useState(false);
-    useEffect(() => {
-    }, []);
+    useEffect(() => { }, []);
 
-    const handle_delete_device = async (id) => {
-        try {
-            let data = await delete_device(id);
-            if (data && data.data && data.data.success == 1) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    }
     const handleLogout = async () => {
-        const device_id = await get_local('device_id');
-        if (device_id !== null) {
-            let result_delete = await handle_delete_device(device_id);
-            if (result_delete == true) {
-                const result_remove_account = await remove_local(process.env.EXPO_PUBLIC_ACCOUNT);
-                if (result_remove_account == true) {
-                    const result_remove_device_id = await remove_local('device_id');
-                    if (result_remove_device_id == true) {
-                        router.push(`login`);
-                    }
-                }
-            }
-        }
+        const deviceId = await getDataLocal('device_id');
+        if (deviceId !== null) { await deleteDevice(deviceId); }
+        await deleteDataLocal(process.env.EXPO_PUBLIC_ACCOUNT);
+        await deleteDataLocal('device_id');
+        router.push(`login`);
     }
     return (
         <View style={styles.header}>
             {Menu == true &&
                 <Pressable onPress={handleLogout}  >
-                    <Text style={styles.button_text1}>Log out</Text>
+                    <Text style={styles.buttonLogOut}>Log out</Text>
                 </Pressable>
             }
             {Menu == true ?
@@ -54,7 +33,6 @@ const header = () => {
                     <Entypo name="menu" size={30} color="white" />
                 </Pressable>
             }
-
         </View>
     )
 }
@@ -62,7 +40,7 @@ const header = () => {
 export default header
 
 const styles = StyleSheet.create({
-    button_text1: {
+    buttonLogOut: {
         color: "#ffde59",
         fontSize: 18,
         fontWeight: "400",

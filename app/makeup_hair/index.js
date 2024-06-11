@@ -1,85 +1,88 @@
-import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView, Image } from 'react-native'
+import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView, Alert, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Footer from '../../components/footer';
 import Header from '../../components/header';
-import { get_makeup_hair } from '../../services/api';
-import { AntDesign, Fontisto, FontAwesome, } from '@expo/vector-icons';
-const bg = require("../../assets/images/bg.png");
+import { getMakeupHair } from '../../services/api';
+import { AntDesign, FontAwesome, Fontisto } from '@expo/vector-icons';
+
+const Background = require("../../assets/images/bg.png");
+import Spinner from 'react-native-loading-spinner-overlay';
 import Carousel from "react-native-snap-carousel";
-const makeup_hair = () => {
+
+const makeupHair = () => {
     const router = useRouter();
     const isCarousel = React.useRef(null);
     const { id } = useLocalSearchParams();
-    const [Makeup_hair, setMakeup_hair] = useState({});
+    const [dataMakeupHair, setDataMakeupHair] = useState({});
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
-        if (id && id !== null && id !== undefined) {
-            handle_get_makeup_hair(id);
-        }
+        if (id) { handleGetDataMakeupHair(id); }
     }, []);
-    const handle_get_makeup_hair = async (id) => {
+
+    const handleGetDataMakeupHair = async (id) => {
+        setLoading(true);
         try {
-            const data = await get_makeup_hair(id);
+            const data = await getMakeupHair(id);
             if (data && data.data && data.data.success == 1) {
-                let data_raw = data.data.data;
-                setMakeup_hair(data_raw);
+                const dataOriginal = data.data.data;
+                setDataMakeupHair(dataOriginal);
             }
         } catch (error) {
-            console.error("Error:", error);
+            Alert.alert("System Error");
         }
+        setLoading(false);
     };
     const CarouselCardItem = ({ item }) => {
         return (
-            <View style={styles.carousel} key={item && item.id}>
-                <Image source={{ uri: item && item.value }} style={styles.image} />
+            <View style={styles.containerCarouselItem} key={item?.id}>
+                <Image source={{ uri: item?.value }} style={styles.imageCarouseItem} />
             </View>
         );
     };
     return (
-        <View style={styles.container}>
-            <ImageBackground source={bg} style={styles.bg}>
+        <View style={styles.containerBody}>
+            <Spinner visible={loading} textContent={'Loading...'} />
+            <ImageBackground source={Background} style={styles.containerBackground}>
                 <Header />
-                <View style={styles.main}>
-                    <View style={styles.container_menu}>
-                        <Pressable style={styles.button} onPress={() => router.back()}>
-                            <Text style={styles.button_text}>BACK</Text>
+                <View style={styles.containerMain}>
+                    <View style={styles.containerNav}>
+                        <Pressable style={styles.buttonBack} onPress={() => router.back()}>
+                            <Text style={styles.textButtonBack}>BACK</Text>
                             <AntDesign name="caretleft" size={16} color="#49688d" />
                         </Pressable>
                     </View>
-                    <View style={styles.span}>
+                    <View style={styles.containerTitle}>
                         <FontAwesome name="paint-brush" size={22} color="black" />
-                        <Text style={styles.text_span}>MAKE UP - HAIR</Text>
+                        <Text style={styles.textTitle}>MAKE UP - HAIR</Text>
                         <Fontisto name="person" size={22} color="black" />
                     </View>
-                    <ScrollView style={styles.scrollView}>
-                        <View style={styles.main_info}>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Make up :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{Makeup_hair && Makeup_hair.make_up}</Text>
+                    <ScrollView style={styles.containerScrollView}>
+                        <View style={styles.containerMainInfor}>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Make up :</Text>
+                                <View style={styles.containerInfor}>
+                                    <Text style={styles.textInfor}>{dataMakeupHair?.make_up}</Text>
                                 </View>
                             </View>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Make hair :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{Makeup_hair && Makeup_hair.make_hair}</Text>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Make hair :</Text>
+                                <View style={styles.containerInfor}>
+                                    <Text style={styles.textInfor}>{dataMakeupHair?.make_hair}</Text>
                                 </View>
                             </View>
-                            <View style={styles.main_carousel}>
+                            <View style={styles.containerCarousel}>
                                 <Carousel
                                     layout="default"
                                     layoutCardOffset={9}
                                     ref={isCarousel}
-                                    data={Makeup_hair && Makeup_hair.images}
+                                    data={dataMakeupHair?.images}
                                     renderItem={CarouselCardItem}
                                     sliderWidth={310}
                                     itemWidth={300}
                                     itemHeight={300}
                                     inactiveSlideShift={0}
                                     useScrollView={true}
-                                // activeSlideAlignment={"start"}
-                                // inactiveSlideScale={1}
-                                // inactiveSlideOpacity={1}
                                 />
                             </View>
                         </View>
@@ -91,60 +94,42 @@ const makeup_hair = () => {
     )
 }
 
-export default makeup_hair
+export default makeupHair
 
 const styles = StyleSheet.create({
-    image: {
-        height: 280,
-        width: 280,
-        borderRadius: 10,
-        borderColor: "white",
-        borderWidth: 2,
-        resizeMode: 'cover',
-    },
-    carousel: {
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    main_carousel: {
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        paddingVertical: 10,
-    },
-    scrollView: {
+    containerScrollView: {
         paddingHorizontal: 20,
     },
-    main_info1: {
+    containerListInfor: {
         marginVertical: 10,
         paddingHorizontal: 10,
     },
-    main_info: {
+    containerMainInfor: {
         padding: 0,
     },
-    info: {
+    containerInfor: {
         borderBottomWidth: 1,
         borderBottomColor: '#b0b0b0',
         paddingVertical: 5,
     },
-    text_lable: {
+    textLable: {
         color: 'white',
         fontSize: 18,
         fontWeight: '500',
     },
-    text_info: {
+    textInfor: {
         color: 'white',
         fontSize: 18,
         fontWeight: '500',
         textAlign: 'center'
     },
-    text_span: {
+    textTitle: {
         textAlign: 'center',
         fontSize: 16,
         fontWeight: '600',
         paddingHorizontal: 10,
     },
-    span: {
+    containerTitle: {
         borderRadius: 10,
         paddingVertical: 15,
         paddingHorizontal: 15,
@@ -155,13 +140,13 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         marginHorizontal: 10,
     },
-    button_text: {
+    textButtonBack: {
         color: "#49688d",
         fontSize: 14,
         fontWeight: "800",
         paddingRight: 5,
     },
-    button: {
+    buttonBack: {
         flexDirection: 'row',
         alignItems: "center",
         justifyContent: "space-between",
@@ -170,23 +155,42 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         backgroundColor: "#ffde59",
     },
-    container_menu: {
+    containerNav: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 10,
         paddingVertical: 10,
     },
-    container: {
+    containerBody: {
         height: "100%",
         flexDirection: "column",
+        backgroundColor: "#00030a",
     },
-    bg: {
+    containerBackground: {
         height: "100%",
         resizeMode: "cover",
         justifyContent: "center",
     },
-    main: {
+    containerMain: {
         flex: 1,
+    },
+    containerCarousel: {
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+        paddingVertical: 10,
+    },
+    imageCarouseItem: {
+        height: 280,
+        width: 280,
+        borderRadius: 10,
+        borderColor: "white",
+        borderWidth: 2,
+        resizeMode: 'cover',
+    },
+    containerCarouselItem: {
+        justifyContent: "center",
+        alignItems: "center",
     },
 })

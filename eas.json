@@ -9,14 +9,14 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://api.rebelsaintrecords.com/",
+        "EXPO_PUBLIC_API_URL": "https://api.rebelsaintrecords.com/",
         "EXPO_PUBLIC_ACCOUNT": "account"
       }
     },
     "preview_ios": {
       "channel": "preview_ios",
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://api.rebelsaintrecords.com/",
+        "EXPO_PUBLIC_API_URL": "https://api.rebelsaintrecords.com/",
         "EXPO_PUBLIC_ACCOUNT": "account"
       }
     }

@@ -4,7 +4,7 @@ import React from 'react'
 const footer = () => {
     return (
         <View style={styles.footer}>
-            <Text style={styles.text_footer1}>wwww.rebelsaintrecords.com</Text>
+            <Text style={styles.textFooterWeb}>wwww.rebelsaintrecords.com</Text>
         </View>
     )
 }
@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: 'black',
     },
-    text_footer1: {
+    textFooterWeb: {
         padding: 10,
         color: "white",
         fontWeight: "500",

@@ -3,71 +3,76 @@ import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Footer from '../../components/footer';
 import Header from '../../components/header';
-const bg = require("../../assets/images/bg.png");
-import { get_list_schedule } from '../../services/api';
+const Background = require("../../assets/images/bg.png");
+import { getListSchedule } from '../../services/api';
 import { AntDesign } from '@expo/vector-icons';
+import Spinner from 'react-native-loading-spinner-overlay';
 const schedule = () => {
   const params = useLocalSearchParams();
   const router = useRouter();
   const [Schedules, setSchedules] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
-    handle_get_list_schedule(params);
+    handleGetListSchedule(params);
   }, []);
 
-  const handle_get_list_schedule = async (value) => {
+  const handleGetListSchedule = async (value) => {
+    setLoading(true);
     try {
-      const data = await get_list_schedule(value);
+      const data = await getListSchedule(value);
       if (data && data.data && data.data.success == 1) {
-        let data_raw = data.data.data;
-        data_raw.sort((a, b) => {
-          const dateA = new Date("2023-01-01 " + a.time_localtion_id.show_time);
-          const dateB = new Date("2023-01-01 " + b.time_localtion_id.show_time);
+        const dataOriginal = data.data.data;
+        dataOriginal.sort((a, b) => {
+          const dateA = new Date("2023-01-01 " + a?.time_localtion_id?.show_time);
+          const dateB = new Date("2023-01-01 " + b?.time_localtion_id?.show_time);
           return dateA - dateB;
         });
-        setSchedules(data_raw)
+        setSchedules(dataOriginal)
       }
     } catch (error) {
       console.error("Error:", error);
     }
+    setLoading(false);
   };
-  const format_time = (time) => {
-    if (time && time !== undefined) {
-      var timeParts = time.split(":");
-      var formattedTime = timeParts[0] + ":" + timeParts[1];
+  const formatTime = (time) => {
+    if (time) {
+      const timeParts = time.split(":");
+      const formattedTime = timeParts[0] + ":" + timeParts[1];
       return formattedTime
     }
   }
-  const on_click_screen = (id) => {
+  const pushScreen = (id) => {
     router.push({ pathname: `schedule/${id}` });
   };
   return (
-    <View style={styles.container}>
-      <ImageBackground source={bg} style={styles.bg}>
+    <View style={styles.containerBody}>
+      <Spinner visible={loading} textContent={'Loading...'} />
+      <ImageBackground source={Background} style={styles.containerBackground}>
         <Header />
-        <View style={styles.main}>
-          <View style={styles.container_menu}>
-            <Pressable style={styles.button} onPress={() => router.back()} >
-              <Text style={styles.button_text}>BACK</Text>
+        <View style={styles.containerMain}>
+          <View style={styles.containerNav}>
+            <Pressable style={styles.buttonBack} onPress={() => router.back()} >
+              <Text style={styles.textButtonBack}>BACK</Text>
               <AntDesign name="caretleft" size={16} color="#49688d" />
             </Pressable>
-            <View style={styles.container_menu}>
+            <View style={styles.containerNav}>
               <AntDesign name="calendar" size={20} color="white" />
-              <Text style={styles.text_menu}>  {params && params.date}</Text>
+              <Text style={styles.textTime}>{params?.date}</Text>
             </View>
           </View>
-          <ScrollView style={styles.scrollView}>
-            <View style={styles.container_schedule}>
+          <ScrollView style={styles.containerScrollView}>
+            <View style={styles.containerSchedule}>
               {Schedules && Schedules.map((item, index) => {
                 return (
-                  <TouchableOpacity key={item.id} onPress={() => on_click_screen(item.id)}>
-                    <View style={styles.main_schedule}>
-                      <Image source={{ uri: item.user_id && item.user_id.avatar }} style={styles.image} />
-                      <View style={styles.container_text}>
-                        <Text style={styles.text_info}>Schedule Info {index + 1} </Text>
-                        <Text style={styles.text_brand}>{item.brand_id && item.brand_id.name}</Text>
+                  <TouchableOpacity key={item.id} onPress={() => pushScreen(item.id)}>
+                    <View style={styles.mainSchedule}>
+                      <Image source={{ uri: item?.user_id?.avatar }} style={styles.imageAvatar} />
+                      <View style={styles.containerInfor}>
+                        <Text style={styles.textInfor}>Schedule Info {index + 1} </Text>
+                        <Text style={styles.textBrand}>{item?.brand_id?.name}</Text>
                       </View>
                       <View>
-                        <Text style={styles.time}>{format_time(item.time_localtion_id && item.time_localtion_id.show_time)} </Text>
+                        <Text style={styles.textTimeStart}>{formatTime(item?.time_localtion_id?.show_time)} </Text>
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -82,13 +87,13 @@ const schedule = () => {
   )
 }
 const styles = StyleSheet.create({
-  button_text: {
+  textButtonBack: {
     color: "#49688d",
     fontSize: 14,
     fontWeight: "800",
     paddingRight: 5,
   },
-  button: {
+  buttonBack: {
     flexDirection: 'row',
     alignItems: "center",
     justifyContent: "space-between",
@@ -97,29 +102,29 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: "#ffde59",
   },
-  text_menu: {
+  textTime: {
     color: '#ffde59',
     fontSize: 18,
     fontWeight: '500',
   },
-  container_menu: {
+  containerNav: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
     paddingVertical: 10,
   },
-  container_schedule: {
+  containerSchedule: {
 
   },
-  time: {
+  textTimeStart: {
     borderColor: "#636663",
     borderWidth: 1,
     padding: 5,
     borderRadius: 5,
     fontWeight: '500'
   },
-  image: {
+  imageAvatar: {
     height: 70,
     width: 70,
     borderRadius: 100,
@@ -127,21 +132,21 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     resizeMode: 'cover',
   },
-  container_text: {
+  containerInfor: {
     textAlign: 'center',
   },
-  text_info: {
+  textInfor: {
     fontSize: 20,
     fontWeight: "600",
     textAlign: 'center',
   },
-  text_brand: {
+  textBrand: {
     fontSize: 15,
     textAlign: 'center',
     fontWeight: "500",
     color: '#737573',
   },
-  main_schedule: {
+  mainSchedule: {
     marginVertical: 10,
     backgroundColor: 'white',
     padding: 10,
@@ -151,19 +156,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  scrollView: {
+  containerScrollView: {
     paddingHorizontal: 20,
   },
-  container: {
+  containerBody: {
     height: "100%",
     flexDirection: "column",
+    backgroundColor: "#00030a",
   },
-  bg: {
+  containerBackground: {
     height: "100%",
     resizeMode: "cover",
     justifyContent: "center",
   },
-  main: {
+  containerMain: {
     flex: 1,
   },
 })

@@ -1,99 +1,102 @@
-import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView, Linking, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView, Alert,TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Footer from '../../components/footer';
 import Header from '../../components/header';
-import { get_time_location } from '../../services/api';
-import { AntDesign, Entypo, } from '@expo/vector-icons';
-import { handle_phone_press } from '../../auths/phone_press';
-
-const bg = require("../../assets/images/bg.png");
-const time_location = () => {
+import { getTimeLocation } from '../../services/api';
+import { AntDesign, Entypo } from '@expo/vector-icons';
+const Background = require("../../assets/images/bg.png");
+import Spinner from 'react-native-loading-spinner-overlay';
+import { callPhone } from '../../auths/handlePhone';
+const timeLocation = () => {
     const router = useRouter();
     const { id } = useLocalSearchParams();
-    const [Time_location, setTime_location] = useState({});
+    const [dataTimeLocation, setDataTimeLocation] = useState({});
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
-        if (id && id !== null && id !== undefined) {
-            handle_get_time_location(id);
-        }
+        if (id) { handleGetDataTimeLocation(id); }
     }, []);
-    const handle_get_time_location = async (id) => {
+
+    const handleGetDataTimeLocation = async (id) => {
+        setLoading(true);
         try {
-            const data = await get_time_location(id);
+            const data = await getTimeLocation(id);
             if (data && data.data && data.data.success == 1) {
-                let data_raw = data.data.data;
-                setTime_location(data_raw);
+                const dataOriginal = data.data.data;
+                setDataTimeLocation(dataOriginal);
             }
         } catch (error) {
-            console.error("Error:", error);
+            Alert.alert("System Error");
         }
+        setLoading(false);
     };
-    const format_time = (time) => {
-        if (time && time !== undefined) {
-            var timeParts = time.split(":");
-            var formattedTime = timeParts[0] + ":" + timeParts[1];
+    const formatTime = (time) => {
+        if (time) {
+            const timeParts = time.split(":");
+            const formattedTime = timeParts[0] + ":" + timeParts[1];
             return formattedTime
         }
     }
     return (
-        <View style={styles.container}>
-            <ImageBackground source={bg} style={styles.bg}>
+        <View style={styles.containerBody}>
+            <Spinner visible={loading} textContent={'Loading...'} />
+            <ImageBackground source={Background} style={styles.containerBackground}>
                 <Header />
-                <View style={styles.main}>
-                    <View style={styles.container_menu}>
-                        <Pressable style={styles.button} onPress={() => router.back()}>
-                            <Text style={styles.button_text}>BACK</Text>
+                <View style={styles.containerMain}>
+                    <View style={styles.containerNav}>
+                        <Pressable style={styles.buttonBack} onPress={() => router.back()}>
+                            <Text style={styles.textButtonBack}>BACK</Text>
                             <AntDesign name="caretleft" size={16} color="#49688d" />
                         </Pressable>
                     </View>
-                    <View style={styles.span} >
+                    <View style={styles.containerTitle}>
                         <Entypo name="back-in-time" size={22} color="black" />
-                        <Text style={styles.text_span}>TIME - LOCATION</Text>
+                        <Text style={styles.textTitle}>TIME - LOCATION</Text>
                         <AntDesign name="enviromento" size={22} color="black" />
                     </View>
-                    <ScrollView style={styles.scrollView}>
-                        <View style={styles.main_info}>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Show date :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{Time_location && Time_location.show_date}</Text>
+                    <ScrollView style={styles.containerScrollView}>
+                        <View style={styles.containerMainInfor}>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Show date :</Text>
+                                <View style={styles.containerInfor}>
+                                    <Text style={styles.textInfor}>{dataTimeLocation?.show_date}</Text>
                                 </View>
                             </View>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Show time :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{format_time(Time_location && Time_location.show_time)}</Text>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Show time :</Text>
+                                <View style={styles.containerInfor}>
+                                    <Text style={styles.textInfor}>{formatTime(dataTimeLocation?.show_time)}</Text>
                                 </View>
                             </View>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Leave time :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{format_time(Time_location && Time_location.leave_time)}</Text>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Leave time :</Text>
+                                <View style={styles.containerInfor}>
+                                    <Text style={styles.textInfor}>{formatTime(dataTimeLocation?.leave_time)}</Text>
                                 </View>
                             </View>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Makeup time :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{format_time(Time_location && Time_location.make_up_time)}</Text>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Make up time :</Text>
+                                <View style={styles.containerInfor}>
+                                    <Text style={styles.textInfor}>{formatTime(dataTimeLocation?.make_up_time)}</Text>
                                 </View>
                             </View>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Show location :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{Time_location && Time_location.show_localtion}</Text>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Show location :</Text>
+                                <View style={styles.containerInfor}>
+                                    <Text style={styles.textInfor}>{dataTimeLocation?.show_localtion}</Text>
                                 </View>
                             </View>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Agency name :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{Time_location && Time_location.agency_name}</Text>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Agency name :</Text>
+                                <View style={styles.containerInfor}>
+                                    <Text style={styles.textInfor}>{dataTimeLocation?.agency_name}</Text>
                                 </View>
                             </View>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Contact :</Text>
-                                <TouchableOpacity onPress={() => handle_phone_press(Time_location && Time_location.contact)}>
-                                    <View style={styles.info}>
-                                        <Text style={styles.text_info}>{Time_location && Time_location.contact}</Text>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Contact :</Text>
+                                <TouchableOpacity onPress={() => callPhone(dataTimeLocation?.contact)}>
+                                    <View style={styles.containerInfor}>
+                                        <Text style={styles.textInfor}>{dataTimeLocation?.contact}</Text>
                                     </View>
                                 </TouchableOpacity>
                             </View>
@@ -106,42 +109,42 @@ const time_location = () => {
     )
 }
 
-export default time_location
+export default timeLocation
 
 const styles = StyleSheet.create({
-    scrollView: {
+    containerScrollView: {
         paddingHorizontal: 20,
     },
-    main_info1: {
+    containerListInfor: {
         marginVertical: 10,
         paddingHorizontal: 10,
     },
-    main_info: {
+    containerMainInfor: {
         padding: 0,
     },
-    info: {
+    containerInfor: {
         borderBottomWidth: 1,
         borderBottomColor: '#b0b0b0',
         paddingVertical: 5,
     },
-    text_lable: {
+    textLable: {
         color: 'white',
         fontSize: 18,
         fontWeight: '500',
     },
-    text_info: {
+    textInfor: {
         color: 'white',
         fontSize: 18,
         fontWeight: '500',
         textAlign: 'center'
     },
-    text_span: {
+    textTitle: {
         textAlign: 'center',
         fontSize: 16,
         fontWeight: '600',
         paddingHorizontal: 10,
     },
-    span: {
+    containerTitle: {
         borderRadius: 10,
         paddingVertical: 15,
         paddingHorizontal: 15,
@@ -152,13 +155,13 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         marginHorizontal: 10,
     },
-    button_text: {
+    textButtonBack: {
         color: "#49688d",
         fontSize: 14,
         fontWeight: "800",
         paddingRight: 5,
     },
-    button: {
+    buttonBack: {
         flexDirection: 'row',
         alignItems: "center",
         justifyContent: "space-between",
@@ -167,23 +170,24 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         backgroundColor: "#ffde59",
     },
-    container_menu: {
+    containerNav: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 10,
         paddingVertical: 10,
     },
-    container: {
+    containerBody: {
         height: "100%",
         flexDirection: "column",
+        backgroundColor: "#00030a",
     },
-    bg: {
+    containerBackground: {
         height: "100%",
         resizeMode: "cover",
         justifyContent: "center",
     },
-    main: {
+    containerMain: {
         flex: 1,
     },
 })

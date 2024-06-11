@@ -1,84 +1,72 @@
-import {
-    View,
-    Text,
-    StyleSheet,
-    ImageBackground,
-    Image,
-    Dimensions,
-    TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, ImageBackground, Image, Dimensions, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import Carousel from "react-native-snap-carousel";
-const logo = require("../../assets/images/logo.png");
-const bg = require("../../assets/images/bg.png");
-import { get_list_user } from "../../services/api";
+import { getListUser } from "../../services/api";
 import { useRouter } from "expo-router";
+const Background = require("../../assets/images/bg.png");
+const LogoImage = require("../../assets/images/logo.png");
+import Spinner from 'react-native-loading-spinner-overlay';
 const Login = () => {
     const router = useRouter();
     const isCarousel = React.useRef(null);
     const SLIDER_WIDTH = Dimensions.get("window").width;
     const [Artists, setArtists] = useState([]);
     const [Managers, setManager] = useState([]);
-
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
-        handle_get_list_user();
+        handleGetListUser();
     }, []);
 
-    const handle_get_list_user = async () => {
+    const handleGetListUser = async () => {
+        setLoading(true);
         try {
-            const data = await get_list_user();
+            const data = await getListUser();
             if (data && data.data && data.data.success == 1) {
-                let data_raw = data.data.data;
-                let data_artist = data_raw.filter(
-                    (obj) => obj.role.name == "Artist"
-                );
-                let data_manager = data_raw.filter(
-                    (obj) => obj.role.name == "Manager"
-                );
-                setArtists(data_artist);
-                setManager(data_manager);
+                const dataOriginals = data.data.data;
+                const dataArtists = dataOriginals.filter((obj) => obj?.role?.name === "artist");
+                const dataManagers = dataOriginals.filter((obj) => obj?.role?.name === "manager");
+                setArtists(dataArtists);
+                setManager(dataManagers);
             }
         } catch (error) {
-            console.error("Error in :", error);
+            console.error("Error Server");
         }
+        setLoading(false);
+    };
+    const pushScreen = (id) => {
+        router.push({ pathname: `modal_login`, params: { id: id } });
     };
     const CarouselCardItem = ({ item }) => {
         return (
-            <TouchableOpacity onPress={() => on_click_screen(item.id)}>
-                <View style={styles.carousel} key={item && item.id}>
-                    <Image source={{ uri: item && item.avatar }} style={styles.image} />
-                    <View style={styles.carousel_fullname}>
-                        <Text
-                            numberOfLines={1}
-                            ellipsizeMode="tail"
-                            style={styles.fullname}
-                        >
-                            {item && item.fullname}
+            <TouchableOpacity onPress={() => pushScreen(item?.id)}>
+                <View style={styles.containerCarousel} key={item?.id}>
+                    <Image source={{ uri: item?.avatar }} style={styles.imageAvatar} />
+                    <View style={styles.containerFullName}>
+                        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.textFullName}>
+                            {item?.fullname}
                         </Text>
                     </View>
                 </View>
             </TouchableOpacity>
         );
     };
-    const on_click_screen = (id) => {
-        router.push({ pathname: `modal_login`, params: { id: id } });
-    };
     return (
-        <View style={styles.container}>
-            <ImageBackground source={bg} style={styles.bg}>
-                <View style={styles.header}>
-                    <Image source={logo} style={styles.logo} />
+        <View style={styles.containerBody}>
+            <Spinner visible={loading} textContent={'Loading...'} />
+            <ImageBackground source={Background} style={styles.containerBackground}>
+                <View style={styles.containerHeader}>
+                    <Image source={LogoImage} style={styles.imageLogo} />
                 </View>
-                <View style={styles.main}>
-                    <View style={styles.main_banner1}>
-                        <Text style={styles.text_banner1}>
+                <View style={styles.containerMain}>
+                    <View style={styles.mainBannerWelcom}>
+                        <Text style={styles.textBannerWelcom}>
                             WELCOME TO THE HOUSE OF REBELLIOUS DREAMERS
                         </Text>
                     </View>
-                    <View style={styles.main_banner2}>
-                        <Text style={styles.text_banner2}>WHO ARE YOU ?</Text>
+                    <View style={styles.mainBannerQuestion}>
+                        <Text style={styles.textBannerQuestion}>WHO ARE YOU ?</Text>
                     </View>
-                    <View style={styles.main_carousel}>
+                    <View style={styles.containerCarousel}>
                         <Carousel
                             layout="default"
                             layoutCardOffset={9}
@@ -95,7 +83,7 @@ const Login = () => {
                             inactiveSlideOpacity={1}
                         />
                     </View>
-                    <View style={styles.main_carousel}>
+                    <View style={styles.containerCarousel}>
                         <Carousel
                             layout="default"
                             layoutCardOffset={9}
@@ -110,12 +98,13 @@ const Login = () => {
                         />
                     </View>
                 </View>
-                <View style={styles.footer}>
+
+                <View style={styles.containerFooter}>
                     <View>
-                        <Text style={styles.text_footer1}>wwww.rebelsaintrecords.com</Text>
+                        <Text style={styles.textBannerWeb}>wwww.rebelsaintrecords.com</Text>
                     </View>
-                    <View style={styles.banner_text_footer2}>
-                        <Text style={styles.text_footer2}>
+                    <View style={styles.footerBannerAdress}>
+                        <Text style={styles.textBannerAddress}>
                             2022 © rebelsaintrecords | registered in Vietnam VAT number
                             0317147107 | RebelSaint Entertainment & Media Company Limited |
                             RSR Co., Ltd
@@ -126,14 +115,85 @@ const Login = () => {
         </View>
     )
 }
-
 export default Login
 const styles = StyleSheet.create({
-    carousel: {
+    containerBody: {
+        height: "100%",
+        flexDirection: "column",
+        backgroundColor: "#00030a",
+    },
+    containerBackground: {
+        height: "100%",
+        resizeMode: "cover",
+        justifyContent: "center",
+    },
+    containerHeader: {
+        paddingHorizontal: 10,
+        paddingTop: 40,
         justifyContent: "center",
         alignItems: "center",
     },
-    image: {
+    imageLogo: {
+        width: 300,
+        height: 100,
+    },
+    containerMain: {
+        flex: 1,
+    },
+    mainBannerWelcom: {
+        backgroundColor: "#d40404",
+        padding: 10,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    textBannerWelcom: {
+        textAlign: 'center',
+        padding: 5,
+        color: "white",
+        fontWeight: "700",
+        fontSize: 12,
+    },
+    mainBannerQuestion: {
+        padding: 10,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    textBannerQuestion: {
+        padding: 10,
+        color: "#ffde59",
+        fontWeight: "700",
+        fontSize: 18,
+    },
+    containerFooter: {
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    textBannerWeb: {
+        padding: 10,
+        color: "white",
+        fontWeight: "500",
+    },
+    footerBannerAdress: {
+        width: "100%",
+        backgroundColor: "#f8cf2c",
+    },
+    textBannerAddress: {
+        padding: 4,
+        textAlign: "center",
+        color: "black",
+        fontSize: 5,
+    },
+    containerCarousel: {
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+        paddingVertical: 10,
+    },
+    containerCarousel: {
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    imageAvatar: {
         height: 130,
         width: 130,
         borderRadius: 100,
@@ -141,86 +201,15 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         resizeMode: 'cover',
     },
-    carousel_fullname: {
+    containerFullName: {
         overflow: "hidden",
         marginHorizontal: 10,
     },
-    fullname: {
+    textFullName: {
         color: "white",
         fontSize: 18,
         fontWeight: "bold",
         textAlign: "center",
         paddingTop: 10,
     },
-    bg: {
-        height: "100%",
-        resizeMode: "cover",
-        justifyContent: "center",
-    },
-    container: {
-        height: "100%",
-        flexDirection: "column",
-    },
-    main: {
-        flex: 1,
-    },
-    main_banner1: {
-        backgroundColor: "#d40404",
-        padding: 10,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    text_banner1: {
-        textAlign: 'center',
-        padding: 5,
-        color: "white",
-        fontWeight: "700",
-        fontSize: 12,
-    },
-    main_banner2: {
-        padding: 10,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    text_banner2: {
-        padding: 10,
-        color: "#ffde59",
-        fontWeight: "700",
-        fontSize: 18,
-    },
-    main_carousel: {
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        paddingVertical: 10,
-    },
-    header: {
-        paddingHorizontal: 10,
-        paddingTop: 40,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    logo: {
-        width: 300,
-        height: 100,
-    },
-    footer: {
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    text_footer1: {
-        padding: 10,
-        color: "white",
-        fontWeight: "500",
-    },
-    banner_text_footer2: {
-        width: "100%",
-        backgroundColor: "#f8cf2c",
-    },
-    text_footer2: {
-        padding: 4,
-        textAlign: "center",
-        color: "black",
-        fontSize: 5,
-    },
-});
+})

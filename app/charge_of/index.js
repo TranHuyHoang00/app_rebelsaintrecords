@@ -1,64 +1,67 @@
-import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView, TouchableOpacity, Linking } from 'react-native'
+import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView, TouchableOpacity, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Footer from '../../components/footer';
 import Header from '../../components/header';
-import { get_charge_of } from '../../services/api';
+import { getChargeOf } from '../../services/api';
 import { AntDesign, Entypo, FontAwesome, } from '@expo/vector-icons';
-import { handle_phone_press } from '../../auths/phone_press';
-const bg = require("../../assets/images/bg.png");
-const charge_of = () => {
+import { callPhone } from '../../auths/handlePhone';
+const Background = require("../../assets/images/bg.png");
+import Spinner from 'react-native-loading-spinner-overlay';
+const chargeOf = () => {
     const router = useRouter();
     const { id } = useLocalSearchParams();
-    const [Charge_of, setCharge_of] = useState({});
+    const [dataChargeOf, setDataChargeOf] = useState({});
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
-        if (id && id !== null && id !== undefined) {
-            handle_get_charge_of(id);
-        }
+        if (id) { handleGetDataChargeOf(id); }
     }, []);
-    const handle_get_charge_of = async (id) => {
+
+    const handleGetDataChargeOf = async (id) => {
+        setLoading(true);
         try {
-            const data = await get_charge_of(id);
+            const data = await getChargeOf(id);
             if (data && data.data && data.data.success == 1) {
-                let data_raw = data.data.data;
-                setCharge_of(data_raw);
+                const dataOriginal = data.data.data;
+                setDataChargeOf(dataOriginal);
             }
         } catch (error) {
-            console.error("Error:", error);
+            Alert.alert("System Error");
         }
+        setLoading(false);
     };
     return (
-        <View style={styles.container}>
-            <ImageBackground source={bg} style={styles.bg}>
+        <View style={styles.containerBody}>
+            <Spinner visible={loading} textContent={'Loading...'} />
+            <ImageBackground source={Background} style={styles.containerBackground}>
                 <Header />
-                <View style={styles.main}>
-                    <View style={styles.container_menu}>
-                        <Pressable style={styles.button} onPress={() => router.back()}>
-                            <Text style={styles.button_text}>BACK</Text>
+                <View style={styles.containerMain}>
+                    <View style={styles.containerNav}>
+                        <Pressable style={styles.buttonBack} onPress={() => router.back()}>
+                            <Text style={styles.textButtonBack}>BACK</Text>
                             <AntDesign name="caretleft" size={16} color="#49688d" />
                         </Pressable>
                     </View>
-                    <View style={styles.span}>
+                    <View style={styles.containerTitle}>
                         <Entypo name="user" size={22} color="black" />
-                        <Text style={styles.text_span}>PERSON IN CHARGE </Text>
+                        <Text style={styles.textTitle}>PERSON IN CHARGE </Text>
                         <FontAwesome name="user-secret" size={22} color="black" />
                     </View>
-                    <ScrollView style={styles.scrollView}>
-                        <View style={styles.main_info}>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Name :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{Charge_of && Charge_of.name}</Text>
+                    <ScrollView style={styles.containerScrollView}>
+                        <View style={styles.containerMainInfor}>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Name :</Text>
+                                <View style={styles.containerInfor}>
+                                    <Text style={styles.textInfor}>{dataChargeOf?.name}</Text>
                                 </View>
                             </View>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Contact :</Text>
-                                <TouchableOpacity onPress={() => handle_phone_press(Charge_of && Charge_of.phone)}>
-                                    <View style={styles.info}>
-                                        <Text style={styles.text_info}>{Charge_of && Charge_of.phone}</Text>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Contact :</Text>
+                                <TouchableOpacity onPress={() => callPhone(dataChargeOf?.phone)}>
+                                    <View style={styles.containerInfor}>
+                                        <Text style={styles.textInfor}>{dataChargeOf?.phone}</Text>
                                     </View>
                                 </TouchableOpacity>
-
                             </View>
                         </View>
                     </ScrollView>
@@ -69,42 +72,42 @@ const charge_of = () => {
     )
 }
 
-export default charge_of
+export default chargeOf
 
 const styles = StyleSheet.create({
-    scrollView: {
+    containerScrollView: {
         paddingHorizontal: 20,
     },
-    main_info1: {
+    containerListInfor: {
         marginVertical: 10,
         paddingHorizontal: 10,
     },
-    main_info: {
+    containerMainInfor: {
         padding: 0,
     },
-    info: {
+    containerInfor: {
         borderBottomWidth: 1,
         borderBottomColor: '#b0b0b0',
         paddingVertical: 5,
     },
-    text_lable: {
+    textLable: {
         color: 'white',
         fontSize: 18,
         fontWeight: '500',
     },
-    text_info: {
+    textInfor: {
         color: 'white',
         fontSize: 18,
         fontWeight: '500',
         textAlign: 'center'
     },
-    text_span: {
+    textTitle: {
         textAlign: 'center',
         fontSize: 16,
         fontWeight: '600',
         paddingHorizontal: 10,
     },
-    span: {
+    containerTitle: {
         borderRadius: 10,
         paddingVertical: 15,
         paddingHorizontal: 15,
@@ -115,13 +118,13 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         marginHorizontal: 10,
     },
-    button_text: {
+    textButtonBack: {
         color: "#49688d",
         fontSize: 14,
         fontWeight: "800",
         paddingRight: 5,
     },
-    button: {
+    buttonBack: {
         flexDirection: 'row',
         alignItems: "center",
         justifyContent: "space-between",
@@ -130,23 +133,24 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         backgroundColor: "#ffde59",
     },
-    container_menu: {
+    containerNav: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 10,
         paddingVertical: 10,
     },
-    container: {
+    containerBody: {
         height: "100%",
         flexDirection: "column",
+        backgroundColor: "#00030a",
     },
-    bg: {
+    containerBackground: {
         height: "100%",
         resizeMode: "cover",
         justifyContent: "center",
     },
-    main: {
+    containerMain: {
         flex: 1,
     },
 })

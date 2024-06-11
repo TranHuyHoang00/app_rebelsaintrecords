@@ -4,29 +4,31 @@ import {
   View,
   ImageBackground,
   Pressable,
+  Alert,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
-const bg = require("../../assets/images/bg.png");
 import Footer from "../../components/footer";
 import Header from "../../components/header";
 import { Calendar } from "react-native-big-calendar";
-import { get_list_schedule, get_list_user } from "../../services/api";
-import { get_local } from "../../auths/local_storage";
+import { getListUser, getListSchedule } from "../../services/api";
+import { getDataLocal } from "../../auths/localStorage";
 import dayjs from "dayjs";
 import moment from "moment";
 import { AntDesign } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
+import Spinner from 'react-native-loading-spinner-overlay';
+const Background = require("../../assets/images/bg.png");
 const calender = () => {
   const router = useRouter();
-  const [Schedules, setSchedules] = useState<
+  const [dataSchedules, setDataSchedules] = useState<
     { title: string; start: any; end: any; color: string }[]
   >([]);
-  const [Filter_type, setFilter_type] = useState({});
+  const [filterType, setFilterType] = useState({});
   const [date, setDate] = React.useState(dayjs());
-  const [Month_now, setMonth_now] = useState<{ id: number; name: string }>();
-  const [Year_now, setYear_now] = useState<number>();
-  const data_month = [
+  const [monthNow, setMonthNow] = useState<{ id: number; name: string }>();
+  const [yearNow, setYearNow] = useState<number>();
+  const dataMonths = [
     { id: 1, name: "January" },
     { id: 2, name: "February" },
     { id: 3, name: "March" },
@@ -40,25 +42,26 @@ const calender = () => {
     { id: 11, name: "November" },
     { id: 12, name: "December" },
   ];
-  const [Open_drop, setOpen_drop] = useState(false);
-  const [Value_drop, setValue_drop] = useState(0);
+  const [openDropDown, setOpenDropDown] = useState(false);
+  const [valueDropDown, setValueDropDown] = useState(0);
   const [Users, setUsers] = useState<{ label: string; value: number }[]>([]);
-  const [Is_user, setIs_user] = useState<boolean>();
+  const [isUser, setIsUser] = useState<boolean>();
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
-    get_account();
-    get_month_now(new Date());
+    getDataAccount();
+    getMonthNow(new Date());
   }, []);
-  const handle_get_list_user = async () => {
+  const handleGetListUser = async () => {
     try {
-      const data = await get_list_user();
+      const data = await getListUser();
       if (data && data.data && data.data.success == 1) {
-        let data_raw = data.data.data;
-        let data_artist = data_raw.filter(
-          (obj: any) => obj.role.name == "Artist"
+        const dataOriginal = data.data.data;
+        const dataArtists = dataOriginal.filter(
+          (obj: any) => obj?.role?.name == "artist"
         );
         let Users = [{ label: "All Artist", value: 0 }];
-        for (const i of data_artist) {
-          let obj: { label: string; value: number } = {
+        for (const i of dataArtists) {
+          const obj: { label: string; value: number } = {
             label: i.fullname,
             value: i.id,
           };
@@ -70,178 +73,178 @@ const calender = () => {
       console.error("Error in component:", error);
     }
   };
-  const get_account = async () => {
+  const getDataAccount = async () => {
     try {
-      const data = await get_local(process.env.EXPO_PUBLIC_ACCOUNT);
+      const data = await getDataLocal(process.env.EXPO_PUBLIC_ACCOUNT);
       if (data !== null) {
-        if (data.user && data.user.id) {
-          let obj = {};
-          if (data.user.role && data.user.role.name == "Manager") {
-            obj = {
-              user_id: 0,
-              date: format_date(new Date(), 1),
-              type_date: 1,
-            };
-            setIs_user(true);
-            handle_get_list_user();
-          } else {
-            obj = {
-              user_id: data.user && data.user.id,
-              date: format_date(new Date(), 1),
-              type_date: 1,
-            };
-            setIs_user(false);
-          }
-          handle_get_list_schedule(obj);
-          setFilter_type(obj);
+        let obj = {};
+        if (data?.user?.role?.name == "manager") {
+          obj = { user_id: 0, date: formatDate(new Date(), 1), type_date: 1 };
+          setIsUser(true);
+          handleGetListUser();
+        } else {
+          obj = {
+            user_id: data?.user?.id,
+            date: formatDate(new Date(), 1),
+            type_date: 1,
+          };
+          setIsUser(false);
         }
+        handleGetListSchedule(obj);
+        setFilterType(obj);
       }
     } catch (e) {
-      console.log("Error");
+      Alert.alert("System Error");
     }
   };
-  const handle_get_list_schedule = async (value: any) => {
+
+  // HANDLE SCHEDULE FOR CALENDAR
+  const handleGetListSchedule = async (value: any) => {
+    setLoading(true);
     try {
-      const data = await get_list_schedule(value);
+      const data = await getListSchedule(value);
       if (data && data.data && data.data.success == 1) {
-        let data_raw = filter_schedule(data.data.data);
-        let arr: any = [];
-        for (const item of data_raw) {
-          const date: any = format_date(
-            item.time_localtion_id && item.time_localtion_id.show_date,
-            2
-          );
-          let color = item.user_id && item.user_id.color;
-          let obj = {
-            title: item.user_id && item.user_id.fullname,
-            start: new Date(date),
-            end: new Date(date),
-            color:
-              !color || color == undefined || color == null || color == ""
-                ? "#1E90FF"
-                : color,
-          };
-          arr.push(obj);
-        }
-        setSchedules(arr);
+        const dataOriginal = data?.data?.data;
+        const dataFilterSchedules = handleFilterDataSchedules(dataOriginal);
+        if (dataFilterSchedules) {handleSetDataSchedules(dataFilterSchedules);}
       }
     } catch (error) {
-      console.error("Error:", error);
+      Alert.alert("System Error");
     }
+    setLoading(false);
   };
-  const filter_schedule = (data: any) => {
+  const handleSetDataSchedules = (data: any) => {
+    let newDataSchedules: any = [];
+    for (const item of data) {
+      const date: any = formatDate(item?.time_localtion_id?.show_date, 2);
+      const color = item?.user_id?.color;
+      let itemSchedule = {
+        title: item?.user_id?.fullname,
+        start: new Date(date),
+        end: new Date(date),
+        color: color ? color : "#1E90FF",
+      };
+      newDataSchedules.push(itemSchedule);
+    }
+    setDataSchedules(newDataSchedules);
+  };
+  const handleFilterDataSchedules = (data: any) => {
     const uniqueEvents = new Set();
-    const filteredEvents = data.filter((event: any) => {
-      const key = event.user_id.fullname + event.time_localtion_id.show_date;
+    const filterDataEvents = data.filter((item: any) => {
+      const key = item?.user_id?.fullname + item?.time_localtion_id?.show_date;
       const isUnique = !uniqueEvents.has(key);
       if (isUnique) {
         uniqueEvents.add(key);
       }
       return isUnique;
     });
-    return filteredEvents;
+    return filterDataEvents;
   };
-  const format_date = (value: any, type: number) => {
-    if (type == 1) {
-      return moment(new Date(value)).format("DD-MM-YYYY");
-    }
-    if (type == 2) {
-      return moment(new Date(value)).format("YYYY-MM-DD");
-    }
-    if (type == 3) {
-      return moment(new Date(value)).format("DD-MM-YYYY");
+
+  // FORMAT DATE
+  const formatDate = (value: any, type: number) => {
+    switch (type) {
+      case 1:
+        return moment(new Date(value)).format("DD-MM-YYYY");
+      case 2:
+        return moment(new Date(value)).format("YYYY-MM-DD");
+      case 3:
+        return moment(new Date(value)).format("DD-MM-YYYY");
+      default:
+        break;
     }
   };
-  const get_month_now = (value: any) => {
+  // GET DATA MONTH
+  const getMonthNow = (value: any) => {
     const dateObject = new Date(value);
     const year = dateObject.getFullYear();
-    setYear_now(year);
+    setYearNow(year);
     const month: any = dateObject.getMonth() + 1;
-    for (const i of data_month) {
-      if (i.id == month) {
-        setMonth_now(i);
+    for (const item of dataMonths) {
+      if (item.id == month) {
+        setMonthNow(item);
       }
     }
   };
-  const on_click_date = (value: any) => {
-    let date = format_date(value, 3);
+  // ONCLICK EVENT
+  const onClickDate = (value: any) => {
+    const date = formatDate(value, 3);
     router.push({
       pathname: `schedule`,
-      params: { user_id: Filter_type.user_id, date: date, type_date: 2 },
+      params: { user_id: filterType.user_id, date: date, type_date: 2 },
     });
   };
-  const on_click_event = (value: any) => {
-    let date = format_date(value.start, 3);
+  const onClickEvent = (value: any) => {
+    const date = formatDate(value.start, 3);
     router.push({
       pathname: `schedule`,
-      params: { user_id: Filter_type.user_id, date: date, type_date: 2 },
+      params: { user_id: filterType.user_id, date: date, type_date: 2 },
     });
   };
+
+  // ONCHANGE USER FILTER
+  const onChangeItemDropUser = (value: any) => {
+    let data: any = filterType;
+    data.user_id = value;
+    handleGetListSchedule(data);
+  };
+
+  // PREV - NEXT MONTH
   const onPrev = () => {
     setDate(date.add(-1, "month"));
-    get_month_now(date.add(-1, "month"));
+    getMonthNow(date.add(-1, "month"));
   };
   const onNext = () => {
     setDate(date.add(1, "month"));
-    get_month_now(date.add(1, "month"));
-  };
-  const handle_onchange_drop = (value: any) => {
-    let data: any = Filter_type;
-    data.user_id = value;
-    handle_get_list_schedule(data);
+    getMonthNow(date.add(1, "month"));
   };
   return (
-    <View style={styles.container}>
-      <ImageBackground source={bg} style={styles.bg}>
+    <View style={styles.containerBody}>
+      <Spinner visible={loading} textContent={"Loading..."} />
+      <ImageBackground source={Background} style={styles.containerBackground}>
         <Header />
-        <View style={styles.main}>
-          {Is_user == true ? (
-            <View style={styles.main_control}>
-              <View style={styles.control1}>
+        <View style={styles.containerMain}>
+          {isUser ? (
+            <View style={styles.containerNavBar}>
+              <View style={styles.containerDropUser}>
                 <DropDownPicker
-                  open={Open_drop}
-                  value={Value_drop}
+                  open={openDropDown}
+                  value={valueDropDown}
                   items={Users}
-                  setOpen={setOpen_drop}
-                  setValue={setValue_drop}
-                  onChangeValue={handle_onchange_drop}
+                  setOpen={setOpenDropDown}
+                  setValue={setValueDropDown}
+                  onChangeValue={onChangeItemDropUser}
                   containerStyle={{ width: 130 }}
                   style={styles.DropDownPicker}
-                  dropDownContainerStyle={{
-                    backgroundColor: "white",
-                  }}
+                  dropDownContainerStyle={{ backgroundColor: "white" }}
                   ArrowDownIconComponent={({ style }) => (
                     <AntDesign name="filter" size={20} color="black" />
                   )}
                 />
               </View>
-              <View style={styles.control}>
-                <Pressable style={styles.button1} onPress={onPrev}>
+              <View style={styles.containerSelectMonth}>
+                <Pressable style={styles.buttonPrev} onPress={onPrev}>
                   <AntDesign name="left" size={24} color="#d60202" />
                 </Pressable>
                 <View>
-                  <Text style={styles.text_month}>
-                    {Month_now && Month_now.name}
-                  </Text>
-                  <Text style={styles.text_year}>{Year_now}</Text>
+                  <Text style={styles.textMonth}>{monthNow?.name}</Text>
+                  <Text style={styles.textYear}>{yearNow}</Text>
                 </View>
-                <Pressable style={styles.button2} onPress={onNext}>
+                <Pressable style={styles.buttonNext} onPress={onNext}>
                   <AntDesign name="right" size={24} color="#d60202" />
                 </Pressable>
               </View>
             </View>
           ) : (
-            <View style={styles.control}>
-              <Pressable style={styles.button1} onPress={onPrev}>
+            <View style={styles.containerSelectMonth}>
+              <Pressable style={styles.buttonPrev} onPress={onPrev}>
                 <AntDesign name="left" size={24} color="#d60202" />
               </Pressable>
               <View>
-                <Text style={styles.text_month}>
-                  {Month_now && Month_now.name}
-                </Text>
-                <Text style={styles.text_year}>{Year_now}</Text>
+                <Text style={styles.textMonth}>{monthNow?.name}</Text>
+                <Text style={styles.textYear}>{yearNow}</Text>
               </View>
-              <Pressable style={styles.button2} onPress={onNext}>
+              <Pressable style={styles.buttonNext} onPress={onNext}>
                 <AntDesign name="right" size={24} color="#d60202" />
               </Pressable>
             </View>
@@ -249,10 +252,10 @@ const calender = () => {
           <Calendar
             date={date.toDate()}
             height={600}
-            events={Schedules}
+            events={dataSchedules}
             mode={"month"}
-            onPressCell={(value) => on_click_date(value)}
-            onPressEvent={(event) => on_click_event(event)}
+            onPressCell={(value) => onClickDate(value)}
+            onPressEvent={(event) => onClickEvent(event)}
             calendarCellTextStyle={{ color: "white" }}
             swipeEnabled={false}
             eventCellStyle={(event: { color?: string }) => {
@@ -282,33 +285,33 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
   },
-  button1: {
+  buttonPrev: {
     width: 40,
     height: 32,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
   },
-  button2: {
+  buttonNext: {
     width: 40,
     height: 32,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
   },
-  text_month: {
+  textMonth: {
     color: "white",
     fontSize: 16,
     fontWeight: "500",
     paddingHorizontal: 10,
   },
-  text_year: {
+  textYear: {
     color: "white",
     fontSize: 12,
     fontWeight: "500",
     textAlign: "center",
   },
-  main_control: {
+  containerNavBar: {
     zIndex: 500,
     flexDirection: "row",
     alignItems: "center",
@@ -316,25 +319,26 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
   },
-  control: {
+  containerSelectMonth: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
-  control1: {
+  containerDropUser: {
     paddingRight: 5,
   },
   header: {},
-  container: {
+  containerBody: {
     height: "100%",
     flexDirection: "column",
+    backgroundColor: "#00030a",
   },
-  bg: {
+  containerBackground: {
     height: "100%",
     resizeMode: "cover",
     justifyContent: "center",
   },
-  main: {
+  containerMain: {
     flex: 1,
   },
 });

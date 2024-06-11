@@ -1,44 +1,40 @@
 import axios from 'axios';
-import api_user from '../auths/api_user';
+import api from '../auths/api';
 
-const get_list_user = () => {
+const getListUser = () => {
     return axios.get(`${process.env.EXPO_PUBLIC_API_URL}/auth/api/v1/list-user`);
 }
-const get_user = (id) => {
+const getUser = (id) => {
     return axios.get(`${process.env.EXPO_PUBLIC_API_URL}/auth/api/v1/get-user/${id}`);
 }
 const Login = (username, password) => {
     return axios.post(`${process.env.EXPO_PUBLIC_API_URL}/auth/api/v1/login`, { username: username, password: password });
 }
-const get_list_schedule = (data) => {
-    return api_user.post(`/management/api/v1/list-schedule`, data);
+const getListSchedule = (data) => {
+    return api.post(`/management/api/v1/list-schedule`, data);
 }
-const get_schedule = (id) => {
-    return api_user.get(`/management/api/v1/get-schedule/${id}`);
+const getSchedule = (id) => {
+    return api.get(`/management/api/v1/get-schedule/${id}`);
 }
-const get_charge_of = (id) => {
-    return api_user.get(`/management/api/v1/get-charge_of/${id}`,);
+const getChargeOf = (id) => {
+    return api.get(`/management/api/v1/get-charge_of/${id}`,);
 }
-const get_time_location = (id) => {
-    return api_user.get(`/management/api/v1/get-time_location/${id}`,);
+const getTimeLocation = (id) => {
+    return api.get(`/management/api/v1/get-time_location/${id}`,);
 }
-const get_makeup_hair = (id) => {
-    return api_user.get(`/management/api/v1/get-makeup_hair/${id}`,);
+const getMakeupHair = (id) => {
+    return api.get(`/management/api/v1/get-makeup_hair/${id}`,);
 }
-const get_stylist = (id) => {
-    return api_user.get(`/management/api/v1/get-stylist/${id}`,);
+const getStylist = (id) => {
+    return api.get(`/management/api/v1/get-stylist/${id}`,);
 }
-const create_device = (data) => {
-    return api_user.post(`/management/api/v1/create-device`, data,);
+const createDevice = (data) => {
+    return api.post(`/management/api/v1/create-device`, data,);
 }
-const delete_device = (id) => {
-    return api_user.delete(`/management/api/v1/delete-device/${id}`,);
-}
-const get_list_device = () => {
-    return api_user.get(`/management/api/v1/list-device`);
+const deleteDevice = (id) => {
+    return api.delete(`/management/api/v1/delete-device/${id}`,);
 }
 export {
-    get_list_user, get_user, Login, get_list_schedule, get_schedule, get_charge_of,
-    get_time_location, get_makeup_hair, get_stylist, create_device, delete_device,
-    get_list_device
+    getListUser, getUser, Login, getListSchedule, getSchedule, getChargeOf,
+    getTimeLocation, getMakeupHair, getStylist, createDevice, deleteDevice,
 }

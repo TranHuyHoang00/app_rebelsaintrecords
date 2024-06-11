@@ -3,7 +3,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 
-const handle_get_token_device = async () => {
+const getTokenDevice = async () => {
     let token;
     if (Platform.OS === 'android') {
         Notifications.setNotificationChannelAsync('default', {
@@ -13,7 +13,6 @@ const handle_get_token_device = async () => {
             lightColor: '#FF231F7C',
         });
     }
-
     if (Device.isDevice) {
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
         let finalStatus = existingStatus;
@@ -26,7 +25,7 @@ const handle_get_token_device = async () => {
             return;
         }
         token = await Notifications.getExpoPushTokenAsync({
-            projectId: Constants.expoConfig.extra.eas.projectId,
+            projectId: Constants?.expoConfig?.extra?.eas?.projectId,
         });
     } else {
         alert('Must use physical device for Push Notifications');
@@ -34,5 +33,5 @@ const handle_get_token_device = async () => {
     return token.data;
 }
 export {
-    handle_get_token_device
+    getTokenDevice
 }

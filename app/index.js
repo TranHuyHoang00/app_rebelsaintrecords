@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Redirect } from 'expo-router';
-import { get_local } from '../auths/local_storage';
-import * as Notifications from 'expo-notifications';
+import { Alert } from 'react-native'
 
+import { Redirect } from 'expo-router';
+import { getDataLocal } from '../auths/localStorage';
+import * as Notifications from 'expo-notifications';
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
         shouldShowAlert: true,
@@ -16,7 +17,7 @@ const index = () => {
     const notificationListener = useRef();
     const responseListener = useRef();
     useEffect(() => {
-        handle_get_account();
+        handleGetAccount();
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
             setNotification(notification);
         });
@@ -27,16 +28,13 @@ const index = () => {
         };
     }, []);
 
-    const handle_get_account = async () => {
+    const handleGetAccount = async () => {
         try {
-            const data = await get_local(process.env.EXPO_PUBLIC_ACCOUNT);
-            if (data == null) {
-                setAccount(false);
-            } else {
-                setAccount(true);
-            }
+            const data = await getDataLocal(process.env.EXPO_PUBLIC_ACCOUNT);
+            if (data == null) { setAccount(false); }
+            else { setAccount(true); }
         } catch (e) {
-            console.log('Error');
+            Alert.alert("System Error");
         }
     }
     return (
@@ -45,6 +43,7 @@ const index = () => {
                 <Redirect href="/login" />}
             {account == true &&
                 <Redirect href="/calender" />}
+
         </>
     )
 }

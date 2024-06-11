@@ -1,79 +1,81 @@
-import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView, Image } from 'react-native'
+import { StyleSheet, Text, View, Pressable, ImageBackground, ScrollView, Alert, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Footer from '../../components/footer';
 import Header from '../../components/header';
-import { get_stylist } from '../../services/api';
-import { AntDesign, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-const bg = require("../../assets/images/bg.png");
+import { getStylist } from '../../services/api';
+import { AntDesign,MaterialCommunityIcons,Fontisto } from '@expo/vector-icons';
+const Background = require("../../assets/images/bg.png");
+import Spinner from 'react-native-loading-spinner-overlay';
 import Carousel from "react-native-snap-carousel";
+
 const stylist = () => {
     const router = useRouter();
     const isCarousel = React.useRef(null);
     const { id } = useLocalSearchParams();
-    const [Stylist, setStylist] = useState({});
+    const [dataStylist, setDataStylist] = useState({});
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
-        if (id && id !== null && id !== undefined) {
-            handle_get_stylist(id);
-        }
+        if (id) { handleGetDataStylist(id); }
     }, []);
-    const handle_get_stylist = async (id) => {
+
+    const handleGetDataStylist = async (id) => {
+        setLoading(true);
         try {
-            const data = await get_stylist(id);
+            const data = await getStylist(id);
             if (data && data.data && data.data.success == 1) {
-                let data_raw = data.data.data;
-                setStylist(data_raw);
+                const dataOriginal = data.data.data;
+                setDataStylist(dataOriginal);
             }
         } catch (error) {
-            console.error("Error:", error);
+            Alert.alert("System Error");
         }
+        setLoading(false);
     };
     const CarouselCardItem = ({ item }) => {
         return (
-            <View style={styles.carousel} key={item && item.id}>
-                <Image source={{ uri: item && item.value }} style={styles.image} />
+            <View style={styles.containerCarouselItem} key={item?.id}>
+                <Image source={{ uri: item?.value }} style={styles.imageCarouseItem} />
             </View>
         );
     };
     return (
-        <View style={styles.container}>
-            <ImageBackground source={bg} style={styles.bg}>
+        <View style={styles.containerBody}>
+            <Spinner visible={loading} textContent={'Loading...'} />
+            <ImageBackground source={Background} style={styles.containerBackground}>
                 <Header />
-                <View style={styles.main}>
-                    <View style={styles.container_menu}>
-                        <Pressable style={styles.button} onPress={() => router.back()}>
-                            <Text style={styles.button_text}>BACK</Text>
+                <View style={styles.containerMain}>
+                    <View style={styles.containerNav}>
+                        <Pressable style={styles.buttonBack} onPress={() => router.back()}>
+                            <Text style={styles.textButtonBack}>BACK</Text>
                             <AntDesign name="caretleft" size={16} color="#49688d" />
                         </Pressable>
                     </View>
-                    <View style={styles.span}>
-                        <Ionicons name="md-shirt-sharp" size={22} color="black" />
-                        <Text style={styles.text_span}>STYLIST </Text>
+                    <View style={styles.containerTitle}>
+                        <Fontisto name="person" size={22} color="black" />
+                        <Text style={styles.textTitle}>STYLIST</Text>
                         <MaterialCommunityIcons name="tshirt-v-outline" size={22} color="black" />
                     </View>
-                    <ScrollView style={styles.scrollView}>
-                        <View style={styles.main_info}>
-                            <View style={styles.main_info1}>
-                                <Text style={styles.text_lable}>- Name :</Text>
-                                <View style={styles.info}>
-                                    <Text style={styles.text_info}>{Stylist && Stylist.name}</Text>
+                    <ScrollView style={styles.containerScrollView}>
+                        <View style={styles.containerMainInfor}>
+                            <View style={styles.containerListInfor}>
+                                <Text style={styles.textLable}>Name :</Text>
+                                <View style={styles.containerInfor}>
+                                    <Text style={styles.textInfor}>{dataStylist?.name}</Text>
                                 </View>
                             </View>
-                            <View style={styles.main_carousel}>
+                            <View style={styles.containerCarousel}>
                                 <Carousel
                                     layout="default"
                                     layoutCardOffset={9}
                                     ref={isCarousel}
-                                    data={Stylist && Stylist.images}
+                                    data={dataStylist?.images}
                                     renderItem={CarouselCardItem}
                                     sliderWidth={310}
                                     itemWidth={300}
                                     itemHeight={300}
                                     inactiveSlideShift={0}
                                     useScrollView={true}
-                                // activeSlideAlignment={"start"}
-                                // inactiveSlideScale={1}
-                                // inactiveSlideOpacity={1}
                                 />
                             </View>
                         </View>
@@ -88,57 +90,39 @@ const stylist = () => {
 export default stylist
 
 const styles = StyleSheet.create({
-    image: {
-        height: 280,
-        width: 280,
-        borderRadius: 10,
-        borderColor: "white",
-        borderWidth: 2,
-        resizeMode: 'cover',
-    },
-    carousel: {
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    main_carousel: {
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        paddingVertical: 10,
-    },
-    scrollView: {
+    containerScrollView: {
         paddingHorizontal: 20,
     },
-    main_info1: {
+    containerListInfor: {
         marginVertical: 10,
         paddingHorizontal: 10,
     },
-    main_info: {
+    containerMainInfor: {
         padding: 0,
     },
-    info: {
+    containerInfor: {
         borderBottomWidth: 1,
         borderBottomColor: '#b0b0b0',
         paddingVertical: 5,
     },
-    text_lable: {
+    textLable: {
         color: 'white',
         fontSize: 18,
         fontWeight: '500',
     },
-    text_info: {
+    textInfor: {
         color: 'white',
         fontSize: 18,
         fontWeight: '500',
         textAlign: 'center'
     },
-    text_span: {
+    textTitle: {
         textAlign: 'center',
         fontSize: 16,
         fontWeight: '600',
         paddingHorizontal: 10,
     },
-    span: {
+    containerTitle: {
         borderRadius: 10,
         paddingVertical: 15,
         paddingHorizontal: 15,
@@ -149,13 +133,13 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         marginHorizontal: 10,
     },
-    button_text: {
+    textButtonBack: {
         color: "#49688d",
         fontSize: 14,
         fontWeight: "800",
         paddingRight: 5,
     },
-    button: {
+    buttonBack: {
         flexDirection: 'row',
         alignItems: "center",
         justifyContent: "space-between",
@@ -164,23 +148,42 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         backgroundColor: "#ffde59",
     },
-    container_menu: {
+    containerNav: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 10,
         paddingVertical: 10,
     },
-    container: {
+    containerBody: {
         height: "100%",
         flexDirection: "column",
+        backgroundColor: "#00030a",
     },
-    bg: {
+    containerBackground: {
         height: "100%",
         resizeMode: "cover",
         justifyContent: "center",
     },
-    main: {
+    containerMain: {
         flex: 1,
+    },
+    containerCarousel: {
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+        paddingVertical: 10,
+    },
+    imageCarouseItem: {
+        height: 280,
+        width: 280,
+        borderRadius: 10,
+        borderColor: "white",
+        borderWidth: 2,
+        resizeMode: 'cover',
+    },
+    containerCarouselItem: {
+        justifyContent: "center",
+        alignItems: "center",
     },
 })

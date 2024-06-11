@@ -1,128 +1,132 @@
-import { StyleSheet, Text, View, Pressable, ImageBackground, Image, TouchableOpacity, Linking } from 'react-native'
+import { StyleSheet, Text, View, Pressable, ImageBackground, Image, TouchableOpacity, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Footer from '../../components/footer';
 import Header from '../../components/header';
-const bg = require("../../assets/images/bg.png");
-import { get_schedule } from '../../services/api';
-import { handle_phone_press } from '../../auths/phone_press';
-import { AntDesign, Entypo, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons, Foundation, FontAwesome5 } from '@expo/vector-icons';
+const Background = require("../../assets/images/bg.png");
+import { getSchedule } from '../../services/api';
+import { callPhone } from '../../auths/handlePhone';
+import { AntDesign, Entypo, FontAwesome, Fontisto, MaterialCommunityIcons, Foundation, FontAwesome5 } from '@expo/vector-icons';
+import Spinner from 'react-native-loading-spinner-overlay';
 const detail = () => {
     const router = useRouter();
     const { id } = useLocalSearchParams();
-    const [Schedule, setSchedule] = useState([]);
+    const [dataSchedule, setSchedule] = useState([]);
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
-        handle_get_schedule(id);
+        handleGetSchedule(id);
     }, []);
-    const handle_get_schedule = async (id) => {
+    const handleGetSchedule = async (id) => {
+        setLoading(true);
         try {
-            const data = await get_schedule(id);
+            const data = await getSchedule(id);
             if (data && data.data && data.data.success == 1) {
-                let data_raw = data.data.data;
-                setSchedule(data_raw)
+                const dataOriginal = data.data.data;
+                setSchedule(dataOriginal)
             }
         } catch (error) {
-            console.error("Error:", error);
+            Alert.alert("System Error");
         }
+        setLoading(false);
     };
-    const format_time = (time) => {
-        if (time && time !== undefined) {
-            var timeParts = time.split(":");
-            var formattedTime = timeParts[0] + ":" + timeParts[1];
+    const formatTime = (time) => {
+        if (time) {
+            const timeParts = time.split(":");
+            const formattedTime = timeParts[0] + ":" + timeParts[1];
             return formattedTime
         }
-
     }
-    const on_click_screen = (id, name) => {
+    const pushScreen = (id, name) => {
         router.push({ pathname: `${name}`, params: { id } });
     };
     return (
-        <View style={styles.container}>
-            <ImageBackground source={bg} style={styles.bg}>
+        <View style={styles.containerBody}>
+            <Spinner visible={loading} textContent={'Loading...'} />
+            <ImageBackground source={Background} style={styles.containerBackground}>
                 <Header />
-                <View style={styles.main}>
-                    <View style={styles.container_menu}>
-                        <Pressable style={styles.button} onPress={() => router.back()}>
-                            <Text style={styles.button_text}>BACK</Text>
+                <View style={styles.containerMain}>
+                    <View style={styles.containerNav}>
+                        <Pressable style={styles.buttonBack} onPress={() => router.back()}>
+                            <Text style={styles.textButtonBack}>BACK</Text>
                             <AntDesign name="caretleft" size={16} color="#49688d" />
                         </Pressable>
-                        <View style={styles.container_menu}>
+                        <View style={styles.containerNav}>
                             <Entypo name="clock" size={24} color="white" />
-                            <Text style={styles.text_menu}> {format_time(Schedule.time_localtion_id && Schedule.time_localtion_id.show_time)}</Text>
+                            <Text style={styles.textShowTime}> {formatTime(dataSchedule?.time_localtion_id?.show_time)}</Text>
                         </View>
                     </View>
-                    <View style={styles.container_schedule}>
-                        <View style={styles.header_schedule}>
-                            <View style={styles.container_text}>
-                                <Text style={styles.text_info}>Schedule Info</Text>
-                                <Text style={styles.text_brand}>{Schedule.brand_id && Schedule.brand_id.name}</Text>
+                    <View style={styles.containerSchedule}>
+                        <View style={styles.headerSchedule}>
+                            <View style={styles.containeLeft}>
+                                <Text style={styles.textInfor}>Schedule Info</Text>
+                                <Text style={styles.textBrand}>{dataSchedule?.brand_id?.name}</Text>
                             </View>
                             <View>
-                                <Image style={styles.image} source={{ uri: Schedule.user_id && Schedule.user_id.avatar }} />
+                                <Image style={styles.imageAvatar} source={{ uri: dataSchedule?.user_id?.avatar }} />
                             </View>
                         </View>
-                        <View style={styles.container_span}>
-                            <TouchableOpacity onPress={() => on_click_screen(Schedule.time_localtion_id && Schedule.time_localtion_id.id, 'time_location')}>
-                                <View style={styles.main_span}>
-                                    <View style={styles.span} >
+                        <View style={styles.mainSchedule}>
+                            <TouchableOpacity onPress={() => pushScreen(dataSchedule?.time_localtion_id?.id, 'time_location')}>
+                                <View style={styles.mainItemOfSchedule}>
+                                    <View style={styles.containerTitle} >
                                         <Entypo name="back-in-time" size={22} color="black" />
-                                        <Text style={styles.text_span}>TIME - LOCATION</Text>
+                                        <Text style={styles.textTitle}>TIME - LOCATION</Text>
                                         <AntDesign name="enviromento" size={22} color="black" />
                                     </View>
-                                    <View style={styles.span}>
-                                        <Text style={styles.text_span1}>{format_time(Schedule.time_localtion_id && Schedule.time_localtion_id.show_time)}</Text>
+                                    <View style={styles.containerTitle}>
+                                        <Text style={styles.textDetail}>{formatTime(dataSchedule?.time_localtion_id?.show_time)}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => on_click_screen(Schedule.makeup_hair_id && Schedule.makeup_hair_id.id, 'makeup_hair')}>
-                                <View style={styles.main_span}>
-                                    <View style={styles.span}>
+                            <TouchableOpacity onPress={() => pushScreen(dataSchedule.makeup_hair_id && dataSchedule.makeup_hair_id.id, 'makeup_hair')}>
+                                <View style={styles.mainItemOfSchedule}>
+                                    <View style={styles.containerTitle}>
                                         <FontAwesome name="paint-brush" size={22} color="black" />
-                                        <Text style={styles.text_span}>MAKE UP - HAIR</Text>
+                                        <Text style={styles.textTitle}>MAKE UP - HAIR</Text>
                                         <Fontisto name="person" size={22} color="black" />
                                     </View>
-                                    <View style={styles.span}>
-                                        <Text style={styles.text_span1}>Make up: {Schedule.makeup_hair_id && Schedule.makeup_hair_id.make_up}</Text>
+                                    <View style={styles.containerTitle}>
+                                        <Text style={styles.textDetail}>Make up: {dataSchedule?.makeup_hair_id?.make_up}</Text>
                                     </View>
-                                    <View style={styles.span}>
-                                        <Text style={styles.text_span1}>Make hair: {Schedule.makeup_hair_id && Schedule.makeup_hair_id.make_hair}</Text>
+                                    <View style={styles.containerTitle}>
+                                        <Text style={styles.textDetail}>Make hair: {dataSchedule?.makeup_hair_id?.make_hair}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => on_click_screen(Schedule.stylist_id && Schedule.stylist_id.id, 'stylist')}>
-                                <View style={styles.main_span}>
-                                    <View style={styles.span}>
-                                        <Ionicons name="md-shirt-sharp" size={22} color="black" />
-                                        <Text style={styles.text_span}>STYLIST </Text>
+                            <TouchableOpacity onPress={() => pushScreen(dataSchedule.stylist_id && dataSchedule.stylist_id.id, 'stylist')}>
+                                <View style={styles.mainItemOfSchedule}>
+                                    <View style={styles.containerTitle}>
+                                        <Fontisto name="person" size={22} color="black" />
+                                        <Text style={styles.textTitle}>STYLIST </Text>
                                         <MaterialCommunityIcons name="tshirt-v-outline" size={22} color="black" />
                                     </View>
-                                    <View style={styles.span}>
-                                        <Text style={styles.text_span1}>{Schedule.stylist_id && Schedule.stylist_id.name}</Text>
+                                    <View style={styles.containerTitle}>
+                                        <Text style={styles.textDetail}>{dataSchedule?.stylist_id?.name}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
-                            <View style={styles.main_span}>
-                                <TouchableOpacity onPress={() => on_click_screen(Schedule.charge_of_id && Schedule.charge_of_id.id, 'charge_of')}>
-                                    <View style={styles.span}>
+                            <View style={styles.mainItemOfSchedule}>
+                                <TouchableOpacity onPress={() => pushScreen(dataSchedule?.charge_of_id?.id, 'charge_of')}>
+                                    <View style={styles.containerTitle}>
                                         <Entypo name="user" size={22} color="black" />
-                                        <Text style={styles.text_span}>PERSON IN CHARGE </Text>
+                                        <Text style={styles.textTitle}>PERSON IN CHARGE </Text>
                                         <FontAwesome name="user-secret" size={22} color="black" />
                                     </View>
-                                    <View style={styles.span}>
-                                        <Text style={styles.text_span1}>{Schedule.charge_of_id && Schedule.charge_of_id.name}</Text>
+                                    <View style={styles.containerTitle}>
+                                        <Text style={styles.textDetail}>{dataSchedule?.charge_of_id?.name}</Text>
                                     </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => handle_phone_press(Schedule.charge_of_id && Schedule.charge_of_id.phone)}>
-                                    <View style={styles.span}>
-                                        <Text style={styles.text_span1}>{Schedule.charge_of_id && Schedule.charge_of_id.phone}</Text>
+                                <TouchableOpacity onPress={() => callPhone(dataSchedule?.charge_of_id?.phone)}>
+                                    <View style={styles.containerTitle}>
+                                        <Text style={styles.textDetail}>{dataSchedule?.charge_of_id?.phone}</Text>
                                     </View>
                                 </TouchableOpacity>
                             </View>
-                            <TouchableOpacity onPress={() => on_click_screen(Schedule.charge_of_id && Schedule.charge_of_id.id, 'note')}>
-                                <View style={styles.main_span}>
-                                    <View style={styles.span}>
+                            <TouchableOpacity onPress={() => pushScreen(dataSchedule?.charge_of_id?.id, 'note')}>
+                                <View style={styles.mainItemOfSchedule}>
+                                    <View style={styles.containerTitle}>
                                         <Foundation name="clipboard-notes" size={24} color="black" />
-                                        <Text style={styles.text_span}>NOTE </Text>
+                                        <Text style={styles.textTitle}>NOTE </Text>
                                         <FontAwesome5 name="sticky-note" size={22} color="black" />
                                     </View>
                                 </View>
@@ -136,40 +140,40 @@ const detail = () => {
     )
 }
 const styles = StyleSheet.create({
-    text_menu: {
+    textShowTime: {
         color: '#ffde59',
         fontSize: 18,
         fontWeight: '500',
     },
-    container_span: {
+    mainSchedule: {
         paddingHorizontal: 30,
         paddingVertical: 10,
     },
-    text_span: {
+    textTitle: {
         textAlign: 'center',
         fontSize: 18,
         fontWeight: '600',
         paddingHorizontal: 10,
     },
-    text_span1: {
+    textDetail: {
         textAlign: 'center',
         fontSize: 14,
         fontWeight: '500',
         color: '#3d3d3d',
     },
-    main_span: {
+    mainItemOfSchedule: {
         borderRadius: 10,
         paddingVertical: 10,
         paddingHorizontal: 10,
         backgroundColor: 'white',
         marginVertical: 5,
     },
-    span: {
+    containerTitle: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    image: {
+    imageAvatar: {
         height: 90,
         width: 90,
         borderRadius: 100,
@@ -177,7 +181,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         resizeMode: 'cover',
     },
-    header_schedule: {
+    headerSchedule: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -188,22 +192,22 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 10,
     },
-    container_text: {
+    containeLeft: {
         textAlign: 'center',
     },
-    text_info: {
+    textInfor: {
         fontSize: 22,
         fontWeight: "600",
         textAlign: 'center',
         color: 'white',
     },
-    text_brand: {
+    textBrand: {
         fontSize: 16,
         textAlign: 'center',
         fontWeight: "500",
         color: '#ebe6e6',
     },
-    container_schedule: {
+    containerSchedule: {
         borderColor: "white",
         borderWidth: 1,
         borderRadius: 10,
@@ -211,13 +215,13 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         marginTop: 5,
     },
-    button_text: {
+    textButtonBack: {
         color: "#49688d",
         fontSize: 14,
         fontWeight: "800",
         paddingRight: 5,
     },
-    button: {
+    buttonBack: {
         flexDirection: 'row',
         alignItems: "center",
         justifyContent: "space-between",
@@ -226,23 +230,24 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         backgroundColor: "#ffde59",
     },
-    container_menu: {
+    containerNav: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 10,
         paddingVertical: 5,
     },
-    container: {
+    containerBody: {
         height: "100%",
         flexDirection: "column",
+        backgroundColor: "#00030a",
     },
-    bg: {
+    containerBackground: {
         height: "100%",
         resizeMode: "cover",
         justifyContent: "center",
     },
-    main: {
+    containerMain: {
         flex: 1,
     },
 })
