@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Rebelsaintrecords",
+    "name": "RebelSaint Records",
     "slug": "app_rebelsaintrecords",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,6 +14,10 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo1.png",
+        "backgroundColor": "#000000"
+      },
       "supportsTablet": true,
       "bundleIdentifier": "iosv1"
     },

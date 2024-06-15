@@ -105,7 +105,7 @@ const Login = () => {
                     </View>
                     <View style={styles.footerBannerAdress}>
                         <Text style={styles.textBannerAddress}>
-                            2022 © rebelsaintrecords | registered in Vietnam VAT number
+                            2022 © RebelSaint Records | registered in Vietnam VAT number
                             0317147107 | RebelSaint Entertainment & Media Company Limited |
                             RSR Co., Ltd
                         </Text>

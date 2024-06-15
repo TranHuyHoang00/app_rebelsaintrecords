@@ -74,11 +74,13 @@ const modal_login = () => {
                     const resultSaveAccount = await setDataLocal(process.env.EXPO_PUBLIC_ACCOUNT, dataOriginal);
                     if (resultSaveAccount == false) { return; }
                     const tokenDevice = await getTokenDevice();
-                    const dataDevice=await handleCreateDevice(tokenDevice, dataOriginal.user.id);
-                    await setDataLocal('device_id', dataDevice.id);
+                    if (tokenDevice) {
+                        const dataDevice = await handleCreateDevice(tokenDevice, dataOriginal?.user?.id);
+                        if (dataDevice) { await setDataLocal('device_id', dataDevice?.id); }
+                    }
                     router.replace(`calender`);
                 } else {
-                    Alert.alert(`Usename or password is incorrect`);
+                    Alert.alert(`Usename or password is incorrect 0`);
                 }
             } catch (e) {
                 Alert.alert(`Usename or password is incorrect 1`);
@@ -129,7 +131,7 @@ const modal_login = () => {
                     </View>
                     <View style={styles.footerBannerAdress}>
                         <Text style={styles.textBannerAddress}>
-                            2022 © rebelsaintrecords | registered in Vietnam VAT number
+                            2022 © RebelSaint Records | registered in Vietnam VAT number
                             0317147107 | RebelSaint Entertainment & Media Company Limited |
                             RSR Co., Ltd
                         </Text>
