@@ -14,12 +14,10 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo1.png",
-        "backgroundColor": "#000000"
-      },
+      "icon": "./assets/images/logo1.png",
       "supportsTablet": true,
-      "bundleIdentifier": "iosv1"
+      "bundleIdentifier": "com.tranhuyhoang23022001.app_rebelsaintrecords",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,7 +25,9 @@
         "backgroundColor": "#000000"
       },
       "package": "com.tranhuyhoang23022001.app_rebelsaintrecords",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 1,
+      "versionName": "1.0.0"
     },
     "web": {
       "bundler": "metro",
