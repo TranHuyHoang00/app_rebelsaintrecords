@@ -16,8 +16,8 @@
     "ios": {
       "icon": "./assets/images/logo1.png",
       "supportsTablet": true,
-      "bundleIdentifier": "com.tranhuyhoang23022001.app_rebelsaintrecords",
-      "buildNumber": "1.0.0"
+      "bundleIdentifier": "com.tranhuyhoang23022001.rebelsaintrecords",
+      "buildNumber": "1.0.1"
     },
     "android": {
       "adaptiveIcon": {

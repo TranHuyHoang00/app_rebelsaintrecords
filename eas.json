@@ -18,8 +18,7 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://api.rebelsaintrecords.com/",
         "EXPO_PUBLIC_ACCOUNT": "account"
-      },
-      "buildConfiguration": "Release"
+      }
     }
   },
   "submit": {

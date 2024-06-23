@@ -73,11 +73,11 @@ const modal_login = () => {
                     const dataOriginal = data.data.data;
                     const resultSaveAccount = await setDataLocal(process.env.EXPO_PUBLIC_ACCOUNT, dataOriginal);
                     if (resultSaveAccount == false) { return; }
-                    const tokenDevice = await getTokenDevice();
-                    if (tokenDevice) {
-                        const dataDevice = await handleCreateDevice(tokenDevice, dataOriginal?.user?.id);
-                        if (dataDevice) { await setDataLocal('device_id', dataDevice?.id); }
-                    }
+                    // const tokenDevice = await getTokenDevice();
+                    // if (tokenDevice) {
+                    //     const dataDevice = await handleCreateDevice(tokenDevice, dataOriginal?.user?.id);
+                    //     if (dataDevice) { await setDataLocal('device_id', dataDevice?.id); }
+                    // }
                     router.replace(`calender`);
                 } else {
                     Alert.alert(`Usename or password is incorrect 0`);
